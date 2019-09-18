@@ -1,0 +1,6 @@
+This file has for sole purpose
+to make the tmp/ directory exist.
+
+For testing purposes.
+
+See FileSystemHandler.test.js
