@@ -1,0 +1,55 @@
+variables:
+  DOCKER_DRIVER: $DOCKER_DRIVER
+  DOCKER_HOST: $DOCKER_DEAMON_HOST
+
+stages:
+  - deploy
+  - test
+
+test:
+  image: node:latest
+  stage: test
+  only:
+    - develop
+    - staging
+    - master
+  script:
+    - npm prune
+    - npm install --dev
+    - npm test
+  cache:
+    paths:
+      - node_modules
+
+deploy_develop:
+  image: docker:dind
+  stage: deploy
+  only:
+    - develop
+  script:
+    - "docker login $HOST_DOCKER_REGISTRY -u $DOCKER_REGISTRY_LOGIN -p $DOCKER_REGISTRY_PASSWD"
+    - "docker build -t node-rest-dev -f ./Dockerfile ."
+    - "docker tag node-rest-dev $HOST_DOCKER_REGISTRY/node-rest-dev/node"
+    - "docker push $HOST_DOCKER_REGISTRY/node-rest-dev/node"
+
+deploy_staging:
+  image: docker:dind
+  stage: deploy
+  only:
+    - staging
+  script:
+    - "docker login $HOST_DOCKER_REGISTRY -u $DOCKER_REGISTRY_LOGIN -p $DOCKER_REGISTRY_PASSWD"
+    - "docker build -t node-rest-staging -f ./Dockerfile ."
+    - "docker tag node-rest-staging $HOST_DOCKER_REGISTRY/node-rest-staging/node"
+    - "docker push $HOST_DOCKER_REGISTRY/node-rest-staging/node"
+
+deploy_master:
+  image: docker:dind
+  stage: deploy
+  only:
+    - master
+  script:
+    - "docker login $HOST_DOCKER_REGISTRY -u $DOCKER_REGISTRY_LOGIN -p $DOCKER_REGISTRY_PASSWD"
+    - "docker build -t node-rest-prod -f ./Dockerfile ."
+    - "docker tag node-rest-prod $HOST_DOCKER_REGISTRY/node-rest-prod/node"
+    - "docker push $HOST_DOCKER_REGISTRY/node-rest-prod/node"
