@@ -1,16 +1,15 @@
 const fs = require('fs');
 const rfs = require('rotating-file-stream');
 
-const SERVER_CONFIG = require('../business/config/server');
+const SERVER = require('../business/config/server');
 
 
 class Logger {
 
   static handleLog(log) {
-    console.log(log);
     Logger.addLogToFile(log);
     rfs(
-      SERVER_CONFIG.LOG_FILE,
+      SERVER.LOG_FILE,
       {
         interval: '1M'
       }
@@ -18,28 +17,51 @@ class Logger {
   }
 
   static handleError(error) {
-    console.error(error);
     Logger.addLogToFile(error);
     rfs(
-      SERVER_CONFIG.LOG_FILE,
+      SERVER.LOG_FILE,
       {
         interval: '1M'
       }
     );
   }
 
-  static addLogToFile(newLog) {
-    fs.readFile(SERVER_CONFIG.LOG_FILE, 'utf-8', (readingError, data) => {
-      if (readingError) throw readingError;
-      fs.writeFile(
-        SERVER_CONFIG.LOG_FILE,
-        `${data}${newLog}`,
-        'utf-8',
-        (writingError) => {
-          if (writingError) throw writingError;
+  static addLogToFile(newLogs) {
+    fs.readFile(
+      SERVER.LOG_FILE,
+      'utf-8',
+      (readingError, existingLogs) => {
+        if (readingError) {
+          if (readingError.code === 'ENOENT') {
+            fs.mkdir(
+              SERVER.LOG_DIR,
+              (error) => {
+                if (!error || (error && error.code !== 'EEXIST')) {
+                  Logger.updateLogFile(existingLogs, newLogs);
+                }
+              }
+            );
+          } else {
+            throw readingError;
+          }
+        } else {
+          Logger.updateLogFile(existingLogs, newLogs);
         }
-      );
-    });
+      }
+    );
+  }
+
+  static updateLogFile(existingLogs, newLogs) {
+    fs.writeFile(
+      SERVER.LOG_FILE,
+      `${existingLogs}${newLogs}`,
+      'utf-8',
+      (writingError) => {
+        if (writingError) {
+          throw writingError;
+        }
+      }
+    );
   }
 
 }
