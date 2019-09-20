@@ -31,7 +31,7 @@ class ConnexionService extends Service {
     try {
       const user = await POSTGRES_DB.users.findByMail(login.mail);
 
-      if (!ConnexionController.validate(login.password, user.password)) {
+      if (!await ConnexionController.validate(login.password, user.password)) {
         return HttpResolver.handle(
           {
             code: HTTP_ERROR_CODES.UNAUTHORIZED,
