@@ -1,3 +1,7 @@
+#credentials ignore
+app/config/dbCredentials.js
+app/config/jwt.js
+
 # Logs
 logs
 *.log
