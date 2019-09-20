@@ -100,7 +100,7 @@ class UserService extends Service {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         mail: req.body.mail,
-        password: ConnexionController.hash(req.body.password),
+        password: await ConnexionController.hash(req.body.password),
         role: req.body.role
       };
       const userSaved = await db.users.add(userSend);
@@ -137,10 +137,10 @@ class UserService extends Service {
     try {
       const actualUser = await db.users.findPasswordById(sendUser.id);
 
-      if (ConnexionController.validate(sendUser.password, actualUser.password)) {
+      if (await ConnexionController.validate(sendUser.password, actualUser.password)) {
         await db.users.updatePassword({
           id: sendUser.id,
-          password: ConnexionController.hash(sendUser.newPassword)
+          password: await ConnexionController.hash(sendUser.newPassword)
         });
       } else {
         return HttpResolver.handle(

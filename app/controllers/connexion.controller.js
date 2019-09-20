@@ -1,13 +1,14 @@
-const passwordHash = require('password-hash');
+const bcrypt = require('bcrypt');
 
 class ConnexionController {
 
-  static hash(password) {
-    return passwordHash.generate(password);
+  static async hash(password) {
+    const hashedPassword = bcrypt.generate(password);
+    return hashedPassword;
   }
 
-  static validate(userSendPassword, userBddPassword) {
-    if (passwordHash.verify(userSendPassword, userBddPassword)) {
+  static async validate(userSendPassword, userBddPassword) {
+    if (await bcrypt.compare(userSendPassword, userBddPassword)) {
       return true;
     }
     return false;
