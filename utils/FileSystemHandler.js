@@ -18,12 +18,14 @@ class FileSystemHandler {
    */
   static async parseFileInfosFrom(req) {
     const uploadDir = FileSystemHandler.getUploadDirectory();
+
     return AsyncFormidable.for(req, uploadDir);
   }
 
   static async moveFile(origin, fileName) {
     const root = FileSystemHandler.getUploadDirectory();
     const destination = path.join(root, fileName);
+
     return new Promise((resolve, reject) => {
       fs.rename(origin, destination, err => {
         if (err) reject(err);
@@ -35,6 +37,7 @@ class FileSystemHandler {
   static async unlink(fileName) {
     const root = FileSystemHandler.getUploadDirectory();
     const fileLocation = path.join(root, fileName);
+
     return new Promise((resolve, reject) => {
       fs.unlink(fileLocation, err => {
         if (err) reject(err);

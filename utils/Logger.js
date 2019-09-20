@@ -1,7 +1,7 @@
 const fs = require('fs');
 const rfs = require('rotating-file-stream');
 
-const SERVER = require('../business/config/server');
+const SERVER = require('../app/config/server');
 
 
 class Logger {

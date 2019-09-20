@@ -1,6 +1,6 @@
 const Server = require('./utils/Server');
-const App = require('./business/App');
-const SERVER_CONFIG = require('./business/config/server');
+const App = require('./app/App');
+const SERVER_CONFIG = require('./app/config/server');
 
 const app = new App();
 const expressApp = app.getExpressApp();

@@ -34,6 +34,7 @@ class Server {
   static onListening() {
     Loggers.handleLog(`Listening on ${this.host}:${this.port}`);
   }
+
 }
 
 module.exports = Server;

@@ -3,8 +3,8 @@ const { celebrate } = require('celebrate');
 
 const Auth = require('./Auth');
 const HttpResolver = require('./HttpResolver');
-const ERRORS = require('../business/config/errors');
-const { TOKEN_ERROR_CODES } = require('../business/config/errorCodes');
+const ERRORS = require('../app/constants/errors');
+const { TOKEN_ERROR_CODES } = require('../app/constants/errorCodes');
 
 
 /**

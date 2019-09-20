@@ -1,7 +1,7 @@
 const Loggers = require('./Logger');
 
-const ERRORS = require('../business/config/errors');
-const { SQL_ERROR_CODES, HTTP_ERROR_CODES } = require('../business/config/errorCodes');
+const ERRORS = require('../app/constants/errors');
+const { SQL_ERROR_CODES, HTTP_ERROR_CODES } = require('../app/constants/errorCodes');
 
 class HttpResolver {
 
@@ -18,7 +18,7 @@ class HttpResolver {
       return HttpResolver.tokenExpired(res);
     }
     if (error.code === SQL_ERROR_CODES.NO_RESULT) {
-      httpStatus = 404;
+      httpStatus = 204;
       return HttpResolver.noContent(res);
     }
     if (!httpStatus) {
