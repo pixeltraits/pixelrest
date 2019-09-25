@@ -1,10 +1,10 @@
 const express = require('express');
 const { celebrate } = require('celebrate');
 
-const Auth = require('./Auth');
-const HttpResolver = require('./HttpResolver');
-const ERRORS = require('../app/constants/errors');
-const { TOKEN_ERROR_CODES } = require('../app/constants/errorCodes');
+const Auth = require('../authentication/Auth');
+const HttpResolver = require('../loggers/HttpResolver');
+const ERRORS = require('../../app/constants/errors');
+const { TOKEN_ERROR_CODES } = require('../../app/constants/errorCodes');
 
 
 /**
@@ -93,7 +93,7 @@ class Service {
    */
   authorizationControl(req, res, routeConfig) {
     const token = req.headers.authorization;
-    const userRoles = this.tokenData.roles;
+    let userRoles = null;
     const authorizedRoles = routeConfig.roles;
 
     if (Auth.hasPublicRole(routeConfig.roles)) {
@@ -107,6 +107,7 @@ class Service {
 
     try {
       this.tokenData = Auth.verify(token);
+      userRoles = this.tokenData.roles;
     } catch (error) {
       this.tokenError(res, error);
       return false;

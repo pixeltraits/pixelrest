@@ -6,8 +6,8 @@ const { errors } = require('celebrate');
 
 const SERVICES = require('./services');
 const SWAGGER_CONFIG = require('./config/swagger');
-const Logger = require('../utils/Logger');
-const CamelCasify = require('../utils/CamelCasify');
+const Logger = require('../utils/loggers/Logger');
+const CamelCasify = require('../utils/general/CamelCasify');
 
 
 class App {
@@ -31,12 +31,12 @@ class App {
   }
 
   makeErrorHandler() {
-    this.app.use((err, req, res, next) => {
+    this.app.use((error, req, res, next) => {
       if (res.headersSent) {
-        return next(err);
+        return next(error);
       }
-      Logger.console.error(err.stack);
-      return res.status(err.status || 500).send({ message: err });
+      Logger.handleError(error);
+      return res.status(500).send();
     });
   }
 

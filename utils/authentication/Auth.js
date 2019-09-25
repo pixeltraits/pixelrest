@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_CONFIG = require('../app/config/jwt');
-const ROLES = require('../app/constants/roles');
+const JWT_CONFIG = require('../../app/config/jwt');
+const ROLES = require('../../app/constants/roles');
 
 
 class Auth {

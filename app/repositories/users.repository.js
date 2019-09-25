@@ -1,19 +1,15 @@
-const { PrettyPostgres } = require('../../utils/PrettyPostgres');
+const Repository = require('../../utils/database/Repository');
 
 
-class UsersRepository {
-
-  constructor(db) {
-    this.db = db;
-  }
+class UsersRepository extends Repository {
 
   async add(user) {
-    const userAdded = await this.db.one(
-      PrettyPostgres.parse(`
-        INSERT INTO user (firstname, lastname, mail, password, role) 
-        VALUES (~firstname, ~lastname, ~mail, ~password, ~role) 
-        RETURNING *;
-      `),
+    const userAdded = await this.query(
+      `
+        INSERT INTO users (firstname, lastname, email, password, roles) 
+        VALUES (~firstname, ~lastname, ~email, ~password, ~roles);
+        SELECT LAST_INSERT_ID();
+      `,
       user
     );
 
@@ -21,24 +17,24 @@ class UsersRepository {
   }
 
   async findAll() {
-    const users = await this.db.any(
-      PrettyPostgres.parse(`
-        SELECT id, firstname, lastname, mail, role 
-        FROM user 
+    const users = await this.query(
+      `
+        SELECT id, firstname, lastname, email, roles 
+        FROM users
         ORDER BY lastname;
-      `)
+      `
     );
 
     return users;
   }
 
   async findById(id) {
-    const user = await this.db.oneOrNone(
-      PrettyPostgres.parse(`
-        SELECT id, firstname, lastname, mail, role
-        FROM user 
-        WHERE user.id = ~id;
-      `),
+    const user = await this.query(
+      `
+        SELECT id, firstname, lastname, email, roles
+        FROM users
+        WHERE id = ~id;
+      `,
       {
         id: id
       }
@@ -47,15 +43,15 @@ class UsersRepository {
     return user;
   }
 
-  async findByMail(mail) {
-    const user = await this.db.oneOrNone(
-      PrettyPostgres.parse(`
-        SELECT id, role, password
-        FROM user
-        WHERE mail = ~mail;
-      `),
+  async findByMail(email) {
+    const user = await this.query(
+      `
+        SELECT id, roles, password
+        FROM users
+        WHERE email = ~email;
+      `,
       {
-        mail: mail
+        email: email
       }
     );
 
@@ -63,12 +59,12 @@ class UsersRepository {
   }
 
   async findPasswordById(id) {
-    const password = await this.db.oneOrNone(
-      PrettyPostgres.parse(`
+    const password = await this.query(
+      `
         SELECT password
-        FROM user
+        FROM users
         WHERE id = ~id;
-      `),
+      `,
       {
         id: id
       }
@@ -78,13 +74,13 @@ class UsersRepository {
   }
 
   async updateInformations(user) {
-    const updatedUser = await this.db.one(
-      PrettyPostgres.parse(`
-        UPDATE user 
-        SET lastname = ~lastname, firstname = ~firstname, mail = ~mail 
-        WHERE id = ~id
-        RETURNING id, lastname, firstname, mail;
-      `),
+    const updatedUser = await this.query(
+      `
+        UPDATE users 
+        SET lastname = ~lastname, firstname = ~firstname, email = ~email 
+        WHERE id = ~id;
+        SELECT LAST_INSERT_ID();
+      `,
       user
     );
 
@@ -92,13 +88,13 @@ class UsersRepository {
   }
 
   async updatePassword(user) {
-    const userId = await this.db.one(
-      PrettyPostgres.parse(`
-        UPDATE user 
+    const userId = await this.query(
+      `
+        UPDATE users 
         SET password = ~password
-        WHERE id = ~id
-        RETURNING id;
-      `),
+        WHERE id = ~id;
+        SELECT LAST_INSERT_ID();
+      `,
       user
     );
 
