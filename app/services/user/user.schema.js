@@ -11,7 +11,7 @@ const updateInformationsSchema = celebrate({
     id: Joi.number().integer().required(),
     firstname: Joi.string().required().max(50),
     lastname: Joi.string().required().max(50),
-    mail: Joi.string().email().required().allow('').max(100)
+    email: Joi.string().email().required().allow('').max(100)
   })
 });
 
@@ -27,9 +27,9 @@ const postUserSchema = celebrate({
   body: Joi.object().keys({
     firstname: Joi.string().required().max(50),
     lastname: Joi.string().required().max(50),
-    mail: Joi.string().email().required().max(100),
+    email: Joi.string().email().required().max(100),
     password: Joi.string().required().min(6).max(255),
-    role: Joi.string().required()
+    roles: Joi.string().required()
   })
 });
 

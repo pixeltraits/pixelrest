@@ -1,7 +1,7 @@
 const Loggers = require('./Logger');
 
-const ERRORS = require('../app/constants/errors');
-const { SQL_ERROR_CODES, HTTP_ERROR_CODES } = require('../app/constants/errorCodes');
+const ERRORS = require('../../app/constants/errors');
+const { SQL_ERROR_CODES, HTTP_ERROR_CODES } = require('../../app/constants/errorCodes');
 
 class HttpResolver {
 

@@ -1,4 +1,4 @@
-const Server = require('./utils/Server');
+const Server = require('./utils/nodeExpress/Server');
 const App = require('./app/App');
 const SERVER_CONFIG = require('./app/config/server');
 

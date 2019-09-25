@@ -1,7 +1,7 @@
 const http = require('http');
 const nodemon = require('nodemon');
 
-const Loggers = require('./Logger');
+const Loggers = require('../loggers/Logger');
 
 
 class Server {

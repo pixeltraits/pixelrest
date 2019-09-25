@@ -1,7 +1,7 @@
 const Login = {
   type: 'object',
   properties: {
-    mail: {
+    email: {
       type: 'string'
     },
     password: {
@@ -12,7 +12,7 @@ const Login = {
 };
 
 const ConnectionSchemas = {
-  Login: Login
+  Login
 };
 
 module.exports = ConnectionSchemas;

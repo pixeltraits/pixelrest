@@ -1,14 +1,14 @@
-const Auth = require('../../../utils/Auth');
-const HttpResolver = require('../../../utils/HttpResolver');
-const Service = require('../../../utils/Service');
+const Auth = require('../../../utils/authentication/Auth');
+const HttpResolver = require('../../../utils/loggers/HttpResolver');
+const Service = require('../../../utils/nodeExpress/Service');
 
 const HTTP_METHODS = require('../../config/http-methods');
 const ROLES = require('../../constants/roles');
 const { HTTP_ERROR_CODES } = require('../../constants/errorCodes');
 
-const ConnexionController = require('../../controllers/connexion.controller');
+const ConnexionController = require('../../../utils/authentication/Password');
 const loginSchema = require('./connexion.schema');
-const POSTGRES_DB = require('../../config/postgresDb');
+const REPOSITORIES = require('../../config/postgresDb');
 
 class ConnexionService extends Service {
 
@@ -24,12 +24,12 @@ class ConnexionService extends Service {
 
   async post(req, res) {
     const login = {
-      mail: req.body.mail,
+      email: req.body.email,
       password: req.body.password
     };
 
     try {
-      const user = await POSTGRES_DB.users.findByMail(login.mail);
+      const user = await REPOSITORIES.users.findByMail(login.email);
 
       if (!await ConnexionController.validate(login.password, user.password)) {
         return HttpResolver.handle(
@@ -46,7 +46,10 @@ class ConnexionService extends Service {
         roles: [user.role],
         id: user.id
       });
-      return res.send({ token: token });
+
+      return res.send({
+        token: token
+      });
     } catch (error) {
       return HttpResolver.handle(error, 'ConnexionService#post', res);
     }

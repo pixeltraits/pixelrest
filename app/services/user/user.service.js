@@ -1,8 +1,8 @@
-const Auth = require('../../../utils/Auth');
-const HttpResolver = require('../../../utils/HttpResolver');
-const Service = require('../../../utils/Service');
+const Auth = require('../../../utils/authentication/Auth');
+const HttpResolver = require('../../../utils/loggers/HttpResolver');
+const Service = require('../../../utils/nodeExpress/Service');
 
-const POSTGRES_DB = require('../../config/postgresDb');
+const REPOSITORIES = require('../../config/mysqlDb');
 const HTTP_METHODS = require('../../config/http-methods');
 const { HTTP_ERROR_CODES } = require('../../constants/errorCodes');
 const ROLES = require('../../constants/roles');
@@ -14,7 +14,7 @@ const {
   updatePasswordSchema
 } = require('./user.schema');
 
-const ConnexionController = require('../../controllers/connexion.controller');
+const ConnexionController = require('../../../utils/authentication/Password');
 
 class UserService extends Service {
 
@@ -46,7 +46,7 @@ class UserService extends Service {
         execute: 'post',
         method: HTTP_METHODS.POST,
         schema: postUserSchema,
-        roles: [ROLES.ADMIN]
+        roles: [ROLES.PUBLIC]
       },
       {
         route: '/users/update-info',
@@ -67,7 +67,7 @@ class UserService extends Service {
 
   async get(req, res) {
     try {
-      const users = await db.users.findAll();
+      const users = await REPOSITORIES.users.findAll();
       res.send(users);
     } catch (error) {
       HttpResolver.handle(error, 'UserService#get', res);
@@ -86,7 +86,7 @@ class UserService extends Service {
 
   async getById(req, res, id = null) {
     try {
-      const user = await db.users.findById(id || req.params.id);
+      const user = await REPOSITORIES.users.findById(id || req.params.id);
       res.send(user);
     } catch (error) {
       HttpResolver.handle(error, 'UserService#getById', res);
@@ -99,13 +99,14 @@ class UserService extends Service {
         id: req.body.id,
         firstname: req.body.firstname,
         lastname: req.body.lastname,
-        mail: req.body.mail,
+        email: req.body.email,
         password: await ConnexionController.hash(req.body.password),
-        role: req.body.role
+        roles: req.body.roles
       };
-      const userSaved = await db.users.add(userSend);
+      const savedUserId = await REPOSITORIES.users.add(userSend);
+      const savedUser = await REPOSITORIES.users.findById(savedUserId);
 
-      res.send(userSaved);
+      res.send(savedUser);
     } catch (error) {
       HttpResolver.handle(error, 'UserService#post', res);
     }
@@ -116,11 +117,13 @@ class UserService extends Service {
       id: req.body.id,
       firstname: req.body.firstname,
       lastname: req.body.lastname,
-      mail: req.body.mail
+      email: req.body.email
     };
 
     try {
-      const updatedUser = await db.users.updateInformations(user);
+      const updatedUserId = await REPOSITORIES.users.updateInformations(user);
+      const updatedUser = await REPOSITORIES.users.findById(updatedUserId);
+
       res.send(updatedUser);
     } catch (error) {
       HttpResolver.handle(error, 'UserService#updateInformations', res);
@@ -135,10 +138,10 @@ class UserService extends Service {
     };
 
     try {
-      const actualUser = await db.users.findPasswordById(sendUser.id);
+      const actualUser = await REPOSITORIES.users.findPasswordById(sendUser.id);
 
       if (await ConnexionController.validate(sendUser.password, actualUser.password)) {
-        await db.users.updatePassword({
+        await REPOSITORIES.users.updatePassword({
           id: sendUser.id,
           password: await ConnexionController.hash(sendUser.newPassword)
         });

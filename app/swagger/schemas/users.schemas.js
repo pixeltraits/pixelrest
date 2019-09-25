@@ -20,10 +20,10 @@ const User = {
     lastname: {
       type: 'string'
     },
-    mail: {
+    email: {
       type: 'string'
     },
-    role: {
+    roles: {
       type: 'string'
     }
   }
@@ -38,13 +38,13 @@ const UserToCreate = {
     lastname: {
       type: 'string'
     },
-    mail: {
+    email: {
       type: 'string'
     },
     password: {
       type: 'string'
     },
-    role: {
+    roles: {
       type: 'string'
     }
   }
@@ -63,7 +63,7 @@ const UserInformations = {
     lastname: {
       type: 'string'
     },
-    mail: {
+    email: {
       type: 'string'
     }
   }
@@ -86,11 +86,11 @@ const UserPassword = {
 };
 
 const UsersSchemas = {
-  Token: Token,
-  User: User,
-  UserToCreate: UserToCreate,
-  UserInformations: UserInformations,
-  UserPassword: UserPassword
+  Token,
+  User,
+  UserToCreate,
+  UserInformations,
+  UserPassword
 };
 
 module.exports = UsersSchemas;

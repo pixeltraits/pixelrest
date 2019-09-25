@@ -1,12 +1,15 @@
-class PrettyPostgres {
+const BddParser = require('./BddParser');
+
+
+class PostgresParser {
 
   /**
    * Improves the postgres parameters system
    * @method parse
    * @param {string} sqlRequest - SQL request
-   * @return {string} SQL formatted request
+   * @return {}
    */
-  static parse(sqlRequest) {
+  static parse(sqlRequest, sqlParameters = null) {
     let formatedSqlRequest = sqlRequest.replace(/\s+/g, ' ');
     const startReferenceString = '~';
     const endReferenceRegex = /\s|,|;|\)/g;
@@ -31,9 +34,12 @@ class PrettyPostgres {
       }
     }
 
-    return formatedSqlRequest;
+    return {
+      sqlRequest: formatedSqlRequest,
+      sqlParameters: sqlParameters
+    }
   }
 
 }
 
-module.exports = PrettyPostgres;
+module.exports = PostgresParser;

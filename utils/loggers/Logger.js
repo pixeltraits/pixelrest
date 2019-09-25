@@ -1,7 +1,7 @@
 const fs = require('fs');
 const rfs = require('rotating-file-stream');
 
-const SERVER = require('../app/config/server');
+const SERVER = require('../../app/config/server');
 
 
 class Logger {
@@ -18,6 +18,7 @@ class Logger {
 
   static handleError(error) {
     Logger.addLogToFile(error);
+    console.log(error)
     rfs(
       SERVER.LOG_FILE,
       {

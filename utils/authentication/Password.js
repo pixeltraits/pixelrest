@@ -1,9 +1,11 @@
 const bcrypt = require('bcrypt');
 
-class ConnexionController {
+class Password {
 
   static async hash(password) {
-    const hashedPassword = bcrypt.generate(password);
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     return hashedPassword;
   }
 
@@ -16,4 +18,4 @@ class ConnexionController {
 
 }
 
-module.exports = ConnexionController;
+module.exports = Password;
