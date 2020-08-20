@@ -10,7 +10,7 @@
     "coverage": "nyc --reporter=html npm test"
   },
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "1.18.3",
     "camelcase": "^5.2.0",
     "celebrate": "9.0.1",
