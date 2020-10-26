@@ -1,28 +1,30 @@
-const express = require('express');
-const swaggerUi = require('swagger-ui-express');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import morgan from 'morgan';
 
-const SERVICES = require('./services');
-const SWAGGER_CONFIG = require('./config/swagger');
-const Logger = require('../utils/loggers/Logger');
-const CamelCasify = require('../utils/general/CamelCasify');
+import Logger from 'node-rest/logger';
+import MysqlParser from 'node-rest/mysqlParser';
+
+import { JWT } from './config/secret.js';
+import { REPOSITORIES } from './repositories/index.js';
+import { mysql } from './config/mysqlDb.js';
+import { SERVER } from './config/server.js';
+import { SERVICES } from './services/index.js';
+import { SWAGGER_CONFIG } from './config/swagger.js';
 
 
-class App {
+export default class App {
 
   constructor() {
-    this.routes = [];
     this.app = express();
+    this.repositories = {};
 
     try {
-      this.makeBodyParser();
+      this.makeJsonParser();
       this.makeLogger();
       this.makeSwagger();
-      this.makeCelebrate();
       this.makeHeaders();
-      this.makeCamelCaseResponseKeys();
+      this.makeRepositories();
       this.makeRoutes();
       this.makeErrorHandler();
     } catch (error) {
@@ -31,33 +33,36 @@ class App {
   }
 
   makeErrorHandler() {
-    this.app.use((error, req, res, next) => {
+    this.app.use((err, req, res, next) => {
       if (res.headersSent) {
-        return next(error);
+        return next(err);
       }
-      Logger.handleError(error);
-      return res.status(500).send();
+      Logger.handleError(err.stack);
+      return res.status(err.status || 500).send({ message: err });
+    });
+  }
+
+  makeRepositories() {
+    const repositoryKeys = Object.keys(REPOSITORIES);
+
+    repositoryKeys.forEach(repositoryKey => {
+      const RepositoryClass = REPOSITORIES[repositoryKey];
+
+      this.repositories[repositoryKey] = new RepositoryClass(mysql, MysqlParser);
     });
   }
 
   makeRoutes() {
-    for (let index = 0; index < SERVICES.length; index++) {
-      this.routes.push(new SERVICES[index]());
-      this.app.use('/', this.routes[index].getRouter());
+    for (let x = 0; x < SERVICES.length; x++) {
+      const service = new SERVICES[x](this.repositories.pool, JWT.SECRET);
+      service.setModel(this.repositories);
+      this.app.use('/', service.getRouter());
     }
   }
 
-  makeBodyParser() {
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
-  }
-
-  makeCamelCaseResponseKeys() {
-    this.app.use(CamelCasify.forExpress);
-  }
-
-  makeCelebrate() {
-    this.app.use(errors());
+  makeJsonParser() {
+    this.app.use(express.json({ limit: SERVER.MAX_JSON_REQUEST_SIZE }));
+    this.app.use(express.urlencoded({ extended: false }));
   }
 
   makeSwagger() {
@@ -71,7 +76,7 @@ class App {
   makeHeaders() {
     this.app.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE, OPTIONS');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
       res.header('Content-Type', 'application/json');
       next();
@@ -87,5 +92,3 @@ class App {
   }
 
 }
-
-module.exports = App;

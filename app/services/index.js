@@ -1,9 +1,7 @@
-const ConnexionService = require('./connexion/connexion.service');
-const UserService = require('./user/user.service');
+import ConnexionService from './connexion/connexion.service.js';
+import UserService from './user/user.service.js';
 
-const SERVICES = [
+export const SERVICES = [
   ConnexionService,
   UserService
 ];
-
-module.exports = SERVICES;

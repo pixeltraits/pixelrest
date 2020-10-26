@@ -1,6 +1,7 @@
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 
-class Password {
+
+export default class Password {
 
   static async hash(password) {
     const saltRounds = 10;
@@ -17,5 +18,3 @@ class Password {
   }
 
 }
-
-module.exports = Password;

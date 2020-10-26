@@ -196,12 +196,10 @@ const updatePassword = {
   }
 };
 
-const UsersPaths = {
+export default {
   '/users': { ...findAll, ...create },
   '/users/current': findCurrent,
   '/users/{id}': findById,
   '/users/update-info': updateInformations,
   '/users/update-pass': updatePassword
 };
-
-module.exports = UsersPaths;

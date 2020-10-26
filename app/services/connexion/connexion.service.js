@@ -1,59 +1,58 @@
-const Auth = require('../../../utils/authentication/Auth');
-const HttpResolver = require('../../../utils/loggers/HttpResolver');
-const Service = require('../../../utils/nodeExpress/Service');
+import Auth from 'node-rest/auth';
+import HttpResolver from 'node-rest/httpResolver';
+import Service from 'node-rest/service';
+import Password from 'node-rest/password';
 
-const HTTP_METHODS = require('../../config/http-methods');
-const ROLES = require('../../constants/roles');
-const { HTTP_ERROR_CODES } = require('../../constants/errorCodes');
+import { JWT } from '../../config/secret.js';
+import { ROLES } from '../../config/roles.js';
+import { connexionSchema } from './connexion.schema.js';
 
-const ConnexionController = require('../../../utils/authentication/Password');
-const loginSchema = require('./connexion.schema');
-const REPOSITORIES = require('../../config/postgresDb');
 
-class ConnexionService extends Service {
+export default class ConnexionService extends Service {
 
   initRoute() {
-    this.routesConfig = [{
-      route: '/connexion',
-      execute: 'post',
-      method: HTTP_METHODS.POST,
-      schema: loginSchema,
-      roles: [ROLES.PUBLIC]
-    }];
+    this.routesConfig = [
+      {
+        route: '/connexion',
+        execute: 'connexion',
+        method: this.HTTP_METHODS.POST,
+        schema: connexionSchema,
+        roles: [ROLES.PUBLIC]
+      }
+    ];
   }
 
-  async post(req, res) {
+  async connexion(req, res) {
     const login = {
-      email: req.body.email,
-      password: req.body.password
+      mail: req.body.mail,
+      motDePasse: req.body.password
     };
 
     try {
-      const user = await REPOSITORIES.users.findByMail(login.email);
+      const user = await this.db.users.findByMail(login.mail);
 
-      if (!await ConnexionController.validate(login.password, user.password)) {
-        return HttpResolver.handle(
-          {
-            code: HTTP_ERROR_CODES.UNAUTHORIZED,
-            message: 'ConnexionController#verifyPassword - passwords do not match'
-          },
-          'ConnexionService#post',
+      if (!await Password.validate(login.motDePasse, user.motDePasse)) {
+        return HttpResolver.unauthorized(
+          new Date().getTime(),
+          `ConnexionController#verifyPassword - passwords parse not match`,
+          `passwords parse not match`,
           res
         );
       }
 
-      const token = Auth.sign({
-        roles: [user.role],
-        id: user.id
-      });
+      const token = Auth.sign(
+        {
+          roles: [user.role],
+          id: user.id
+        },
+        JWT.SECRET,
+        JWT.EXPIRES_IN
+      );
 
-      return res.send({
-        token: token
-      });
+      return res.send({ token: token });
     } catch (error) {
-      return HttpResolver.handle(error, 'ConnexionService#post', res);
+      return HttpResolver.handle(error, `ConnexionService#post`, res);
     }
   }
-}
 
-module.exports = ConnexionService;
+}

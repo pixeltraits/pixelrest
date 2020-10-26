@@ -1,9 +1,7 @@
-const ConnectionPaths = require('./connection.paths');
-const UsersPaths = require('./users.paths');
+import ConnectionPaths from './connection.paths.js';
+import UsersPaths from './users.paths.js';
 
-const PATHS = {
+export const PATHS = {
   ...ConnectionPaths,
   ...UsersPaths
 };
-
-module.exports = PATHS;

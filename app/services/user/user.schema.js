@@ -1,29 +1,30 @@
-const { celebrate, Joi } = require('celebrate');
+import Joi from '@hapi/joi';
 
-const getUserSchema = celebrate({
+
+export const getUserSchema = {
   query: Joi.object().keys({
     id: Joi.any()
   })
-});
+};
 
-const updateInformationsSchema = celebrate({
+export const updateInformationsSchema = {
   body: Joi.object().keys({
     id: Joi.number().integer().required(),
     firstname: Joi.string().required().max(50),
     lastname: Joi.string().required().max(50),
     email: Joi.string().email().required().allow('').max(100)
   })
-});
+};
 
-const updatePasswordSchema = celebrate({
+export const updatePasswordSchema = {
   body: Joi.object().keys({
     id: Joi.number().integer().required(),
     password: Joi.string().allow('').min(6).max(255),
     oldPassword: Joi.string().allow('').max(255)
   })
-});
+};
 
-const postUserSchema = celebrate({
+export const postUserSchema = {
   body: Joi.object().keys({
     firstname: Joi.string().required().max(50),
     lastname: Joi.string().required().max(50),
@@ -31,11 +32,4 @@ const postUserSchema = celebrate({
     password: Joi.string().required().min(6).max(255),
     roles: Joi.string().required()
   })
-});
-
-module.exports = {
-  getUserSchema,
-  updateInformationsSchema,
-  updatePasswordSchema,
-  postUserSchema
 };

@@ -1,4 +1,4 @@
-const TAGS = [
+export const TAGS = [
   {
     name: 'connect',
     description: 'Connexion utilisateur'
@@ -8,5 +8,3 @@ const TAGS = [
     description: 'Operations sur les utilisateurs système'
   }
 ];
-
-module.exports = TAGS;

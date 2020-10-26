@@ -1,7 +1,5 @@
-const ROLES = Object.freeze({
+export const ROLES = Object.freeze({
   ADMIN: 'admin',
   USER: 'user',
   PUBLIC: 'public'
 });
-
-module.exports = ROLES;

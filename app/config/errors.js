@@ -1,4 +1,4 @@
-const ERRORS = {
+export const ERRORS = {
   PAGE_NOT_FOUND: 'La ressource demandée n\'a pas pu être trouvée',
   PAGE_LOAD_ERROR: 'Une erreur s\'est produite',
   SERVICE_UNAVAILABLE: 'Service indisponible',
@@ -24,5 +24,3 @@ const ERRORS = {
   UNAUTHORIZED: 'Le mot de passe et l\'identifiant utilisateur ne correspondent pas',
   BAD_REQUEST: 'Bad request'
 };
-
-module.exports = ERRORS;

@@ -1,106 +1,147 @@
-const Repository = require('../../utils/database/Repository');
+import Repository from 'node-rest/repository';
+import Logger from 'node-rest/logger';
 
 
-class UsersRepository extends Repository {
+export default class UsersRepository extends Repository {
 
   async add(user) {
-    const userAdded = await this.query(
-      `
+    let userAdded;
+
+    try {
+      userAdded = await this.query(
+        `
         INSERT INTO users (firstname, lastname, email, password, roles) 
         VALUES (~firstname, ~lastname, ~email, ~password, ~roles);
         SELECT LAST_INSERT_ID();
       `,
-      user
-    );
+        user
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return userAdded;
   }
 
   async findAll() {
-    const users = await this.query(
-      `
-        SELECT id, firstname, lastname, email, roles 
-        FROM users
-        ORDER BY lastname;
-      `
-    );
+    let users;
+
+    try {
+      users = await this.query(
+        `
+          SELECT id, firstname, lastname, email, roles 
+          FROM users
+          ORDER BY lastname;
+        `
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return users;
   }
 
   async findById(id) {
-    const user = await this.query(
-      `
-        SELECT id, firstname, lastname, email, roles
-        FROM users
-        WHERE id = ~id;
-      `,
-      {
-        id: id
-      }
-    );
+    let user;
+
+    try {
+      user = await this.query(
+        `
+          SELECT id, firstname, lastname, email, roles
+          FROM users
+          WHERE id = ~id;
+        `,
+        {
+          id: id
+        }
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return user;
   }
 
   async findByMail(email) {
-    const user = await this.query(
-      `
-        SELECT id, roles, password
-        FROM users
-        WHERE email = ~email;
-      `,
-      {
-        email: email
-      }
-    );
+    let user;
+
+    try {
+      user = await this.query(
+        `
+          SELECT id, roles, password
+          FROM users
+          WHERE email = ~email;
+        `,
+        {
+          email: email
+        }
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return user;
   }
 
   async findPasswordById(id) {
-    const password = await this.query(
-      `
-        SELECT password
-        FROM users
-        WHERE id = ~id;
-      `,
-      {
-        id: id
-      }
-    );
+    let password;
+
+    try {
+      password = await this.query(
+        `
+          SELECT password
+          FROM users
+          WHERE id = ~id;
+        `,
+        {
+          id: id
+        }
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return password;
   }
 
   async updateInformations(user) {
-    const updatedUser = await this.query(
-      `
-        UPDATE users 
-        SET lastname = ~lastname, firstname = ~firstname, email = ~email 
-        WHERE id = ~id;
-        SELECT LAST_INSERT_ID();
-      `,
-      user
-    );
+    let updatedUser;
+
+    try {
+      updatedUser = await this.query(
+        `
+          UPDATE users 
+          SET lastname = ~lastname, firstname = ~firstname, email = ~email 
+          WHERE id = ~id;
+          SELECT LAST_INSERT_ID();
+        `,
+        user
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return updatedUser;
   }
 
   async updatePassword(user) {
-    const userId = await this.query(
-      `
-        UPDATE users 
-        SET password = ~password
-        WHERE id = ~id;
-        SELECT LAST_INSERT_ID();
-      `,
-      user
-    );
+    let userId;
+
+    try {
+      userId = await this.query(
+        `
+          UPDATE users 
+          SET password = ~password
+          WHERE id = ~id;
+          SELECT LAST_INSERT_ID();
+        `,
+        user
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
 
     return userId;
   }
 
 }
-
-module.exports = UsersRepository;

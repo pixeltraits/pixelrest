@@ -1,4 +1,2 @@
-const Adapters = {
+export const Adapters = {
 };
-
-module.exports = Adapters;
