@@ -1,4 +1,4 @@
-class AsyncMysql {
+export default class AsyncMysql {
 
   static async query(mysqlPool, ) {
     return new Promise((resolve, reject) => {
@@ -18,5 +18,3 @@ class AsyncMysql {
   }
 
 }
-
-module.exports = AsyncMysql;

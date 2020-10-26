@@ -1,4 +1,4 @@
-const connect = {
+const connection = {
   post: {
     tags: ['connect'],
     summary: 'Login',
@@ -32,8 +32,6 @@ const connect = {
   }
 };
 
-const ConnectionPaths = {
-  '/connexion': connect
+export default {
+  '/connexion': connection
 };
-
-module.exports = ConnectionPaths;

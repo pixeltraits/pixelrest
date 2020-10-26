@@ -1,5 +1,5 @@
 #credentials ignore
-app/config/dbCredentials.js
+app/config/secret.js
 app/config/jwt.js
 
 # Logs

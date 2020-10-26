@@ -1,5 +1,5 @@
-const { UsersRepository } = require('./users.repository');
+import UsersRepository from './users.repository.js';
 
-module.exports = {
-  UsersRepository
+export const REPOSITORIES = {
+  users: UsersRepository
 };

@@ -1,44 +1,46 @@
-const fs = require('fs');
-const rfs = require('rotating-file-stream');
+import fs from 'fs';
+import rfs from 'rotating-file-stream';
 
-const SERVER = require('../../app/config/server');
+import {
+  DEFAULT_LOG_CONFIG
+} from './logger.config.js';
 
 
-class Logger {
+export default class Logger {
 
-  static handleLog(log) {
+  static handleLog(log, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
     Logger.addLogToFile(log);
-    rfs(
-      SERVER.LOG_FILE,
+    rfs.createStream(
+      logFilePath.pathname,
       {
-        interval: '1M'
+        size: `100M`
       }
     );
   }
 
-  static handleError(error) {
+  static handleError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    console.log(error);
     Logger.addLogToFile(error);
-    console.log(error)
-    rfs(
-      SERVER.LOG_FILE,
+    rfs.createStream(
+      logFilePath.pathname,
       {
-        interval: '1M'
+        size: `100M`
       }
     );
   }
 
-  static addLogToFile(newLogs) {
+  static addLogToFile(newLogs, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE, logDirPath = DEFAULT_LOG_CONFIG.LOG_DIR) {
     fs.readFile(
-      SERVER.LOG_FILE,
-      'utf-8',
+      logFilePath,
+      `utf-8`,
       (readingError, existingLogs) => {
         if (readingError) {
-          if (readingError.code === 'ENOENT') {
+          if (readingError.code === `ENOENT`) {
             fs.mkdir(
-              SERVER.LOG_DIR,
+              logDirPath,
               (error) => {
-                if (!error || (error && error.code !== 'EEXIST')) {
-                  Logger.updateLogFile(existingLogs, newLogs);
+                if (!error || (error && error.code !== `EEXIST`)) {
+                  Logger.updateLogFile(existingLogs, newLogs, logFilePath);
                 }
               }
             );
@@ -46,18 +48,18 @@ class Logger {
             throw readingError;
           }
         } else {
-          Logger.updateLogFile(existingLogs, newLogs);
+          Logger.updateLogFile(existingLogs, newLogs, logFilePath);
         }
       }
     );
   }
 
-  static updateLogFile(existingLogs, newLogs) {
+  static updateLogFile(existingLogs, newLogs, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
     fs.writeFile(
-      SERVER.LOG_FILE,
+      logFilePath,
       `${existingLogs}${newLogs}`,
-      'utf-8',
-      (writingError) => {
+      `utf-8`,
+      writingError => {
         if (writingError) {
           throw writingError;
         }
@@ -65,6 +67,16 @@ class Logger {
     );
   }
 
-}
+  static handleSQLError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    console.log(error);
+    Logger.addLogToFile(error);
+    rfs.createStream(
+      logFilePath.pathname,
+      {
+        size: `100M`
+      }
+    );
+    throw new Error(`SQL ERROR`);
+  }
 
-module.exports = Logger;
+}

@@ -1,15 +1,8 @@
-const BddParser = require('./BddParser');
+import BddParser from './BddParser.js';
 
 
-class MysqlParser extends BddParser {
+export default class MysqlParser extends BddParser {
 
-  /**
-   * This method improve the mysql parameters system
-   * @method mysqlIsBetterLikeThat
-   * @param {string} sqlRequest - SQL request
-   * @param {object} sqlParameter - SQL request parameters
-   * @return {object} SQL response
-   */
   static parse(sqlRequest, sqlParameters) {
     let nextIndex = 0;
     let formatedSqlRequest = sqlRequest.replace(/\s+/g, ' ');
@@ -42,5 +35,3 @@ class MysqlParser extends BddParser {
   }
 
 }
-
-module.exports = MysqlParser;

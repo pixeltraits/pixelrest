@@ -1,9 +1,11 @@
-const ConnectionSchemas = require('./connection.schemas');
-const UsersSchemas = require('./users.schemas');
+import { Login } from './connection.schemas.js';
+import { Token, User, UserToCreate, UserInformations, UserPassword } from './users.schemas.js';
 
-const SCHEMAS = {
-  ...ConnectionSchemas,
-  ...UsersSchemas
+export const SCHEMAS = {
+  Login,
+  Token,
+  User, 
+  UserToCreate,
+  UserInformations,
+  UserPassword
 };
-
-module.exports = SCHEMAS;

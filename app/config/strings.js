@@ -1,4 +1,4 @@
-const STRINGS = {
+export const STRINGS = {
   CONNECTED: ' s\'est connecté.',
   THE_USER: 'L\'utilisateur ',
   INFO_USER: 'Les infos utilisateur suivantes ont été envoyées ',
@@ -12,5 +12,3 @@ const STRINGS = {
   ROLES: 'ROLES',
   TOKEN: 'TOKEN'
 };
-
-module.exports = STRINGS;

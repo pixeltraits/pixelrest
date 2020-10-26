@@ -1,45 +1,58 @@
-const BddParser = require('./BddParser');
+import { POSTGRES_PARSER_IDENTIFIER } from './postgres-parser.config.js';
+import BddParser from './BddParser.js';
 
 
-class PostgresParser {
+export default class PostgresParser extends BddParser {
 
-  /**
-   * Improves the postgres parameters system
-   * @method parse
-   * @param {string} sqlRequest - SQL request
-   * @return {}
-   */
-  static parse(sqlRequest, sqlParameters = null) {
-    let formatedSqlRequest = sqlRequest.replace(/\s+/g, ' ');
-    const startReferenceString = '~';
-    const endReferenceRegex = /\s|,|;|\)/g;
-    const identifierLength = formatedSqlRequest.split(startReferenceString).length - 1;
-    let nextIndex = 0;
+  static normalizeParametersFormat(sqlRequest) {
+    let normalizedSqlRequest = sqlRequest;
+    let prevParamLastCharIndex = 0;
+    const parametersCount = PostgresParser.getParametersCount(normalizedSqlRequest);
 
-    formatedSqlRequest = formatedSqlRequest.replace(/(\r\n|\n|\r)/gm, '');
+    for (let x = 0; x < parametersCount; x++) {
+      const firstCharParamIndex = normalizedSqlRequest.indexOf(
+        POSTGRES_PARSER_IDENTIFIER.FIRST_CHAR,
+        prevParamLastCharIndex
+      );
 
-    if (identifierLength <= 0) {
-      return formatedSqlRequest;
+      const parameterSize = PostgresParser.getParameterSize(firstCharParamIndex, normalizedSqlRequest);
+      const lastCharParamIndex = firstCharParamIndex + parameterSize;
+
+      const parameterStringIdentifier = normalizedSqlRequest.substring(firstCharParamIndex + 1, lastCharParamIndex);
+      normalizedSqlRequest = PostgresParser.normalizeParameterFormat(parameterStringIdentifier, normalizedSqlRequest);
+
+      prevParamLastCharIndex = lastCharParamIndex;
     }
 
-    for (let x = 0; x < identifierLength; x++) {
-      const referenceIndex = formatedSqlRequest.indexOf(startReferenceString, nextIndex);
+    return normalizedSqlRequest;
+  }
 
-      if (referenceIndex !== -1) {
-        const endReferenceIndex = referenceIndex + formatedSqlRequest.substring(referenceIndex).search(endReferenceRegex);
-        const parameterReference = formatedSqlRequest.substring(referenceIndex + 1, endReferenceIndex);
-        const replaceRegex = new RegExp(`\\${startReferenceString}${parameterReference}`, 'g');
-        nextIndex = endReferenceIndex;
-        formatedSqlRequest = formatedSqlRequest.replace(replaceRegex, '${' + parameterReference + '}');
-      }
-    }
+  static normalizeParameterFormat(parameterStringIdentifier, sqlRequest) {
+    return sqlRequest.replace(
+      `${POSTGRES_PARSER_IDENTIFIER.FIRST_CHAR}${parameterStringIdentifier}`,
+      `\${${parameterStringIdentifier}}`
+    );
+  }
 
-    return {
-      sqlRequest: formatedSqlRequest,
-      sqlParameters: sqlParameters
-    }
+  static getParameterSize(firstCharIndex, sqlRequest) {
+    const parameterSize = sqlRequest.substring(firstCharIndex).
+    search(POSTGRES_PARSER_IDENTIFIER.END_CHAR);
+    return parameterSize;
+  }
+
+  static getParametersCount(sqlRequest) {
+    const parametersCount = sqlRequest.split(POSTGRES_PARSER_IDENTIFIER.FIRST_CHAR).length - 1;
+
+    return parametersCount;
+  }
+
+  static removeUselessSpaces(originalString) {
+    const stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
+      /(\r\n|\n|\r)/gm,
+      ``
+    );
+
+    return stringWithoutUselessSpaces;
   }
 
 }
-
-module.exports = PostgresParser;

@@ -1,23 +1,24 @@
-const http = require('http');
-const nodemon = require('nodemon');
+import http from 'http';
+import nodemon from 'nodemon';
 
-const Loggers = require('../loggers/Logger');
+import Loggers from 'node-rest/logger';
+import { SERVER_ERROR_CODES } from './server-errors.config.js';
 
 
-class Server {
+export default class Server {
 
-  constructor(expressApp, host, port) {
+  constructor(expressApp, serverConfig) {
+    this.config = serverConfig;
     this.server = http.createServer(expressApp);
-    this.host = host;
-    this.port = port;
-    this.server.listen(this.port);
-    this.server.on('error', Server.onError);
-    this.server.on('listening', Server.onListening);
+    this.server.listen(this.config.PORT);
+    this.server.on('error', error => Server.onError(error, this.config.PORT));
+    this.server.on('listening', event => Server.onListening(this.config.HOST, this.config.PORT));
   }
 
-  static onError(error) {
-    if (error.code === 'EADDRINUSE') {
-      Loggers.handleError(`Port ${this.port} already in use`);
+  static onError(error, port) {
+    if (error.code === SERVER_ERROR_CODES.PORT_ALREADY_IN_USE) {
+      Loggers.handleError(`Port ${port} already in use`);
+
       nodemon.once(
         'exit',
         () => {
@@ -31,10 +32,8 @@ class Server {
     throw error;
   }
 
-  static onListening() {
-    Loggers.handleLog(`Listening on ${this.host}:${this.port}`);
+  static onListening(host, port) {
+    Loggers.handleLog(`Listening on ${host}:${port}`);
   }
 
 }
-
-module.exports = Server;

@@ -1,4 +1,4 @@
-const Login = {
+export const Login = {
   type: 'object',
   properties: {
     email: {
@@ -10,9 +10,3 @@ const Login = {
     }
   }
 };
-
-const ConnectionSchemas = {
-  Login
-};
-
-module.exports = ConnectionSchemas;

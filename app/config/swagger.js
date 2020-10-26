@@ -1,8 +1,9 @@
-const PATHS = require('../swagger/paths');
-const SCHEMAS = require('../swagger/schemas');
-const TAGS = require('../swagger/tags');
+import { PATHS } from '../swagger/paths/index.js';
+import { SCHEMAS } from '../swagger/schemas/index.js';
+import { TAGS } from '../swagger/tags.js';
 
-const SWAGGER_CONFIG = {
+
+export const SWAGGER_CONFIG = {
   openapi: '3.13.0',
   info: {
     title: 'Swagger node-rest',
@@ -22,5 +23,3 @@ const SWAGGER_CONFIG = {
     schemas: SCHEMAS
   }
 };
-
-module.exports = SWAGGER_CONFIG;

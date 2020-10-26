@@ -1,4 +1,4 @@
-const Token = {
+export const Token = {
   type: 'object',
   properties: {
     token: {
@@ -7,7 +7,7 @@ const Token = {
   }
 };
 
-const User = {
+export const User = {
   type: 'object',
   properties: {
     id: {
@@ -29,7 +29,7 @@ const User = {
   }
 };
 
-const UserToCreate = {
+export const UserToCreate = {
   type: 'object',
   properties: {
     firstname: {
@@ -50,7 +50,7 @@ const UserToCreate = {
   }
 };
 
-const UserInformations = {
+export const UserInformations = {
   type: 'object',
   properties: {
     id: {
@@ -69,7 +69,7 @@ const UserInformations = {
   }
 };
 
-const UserPassword = {
+export const UserPassword = {
   type: 'object',
   properties: {
     id: {
@@ -84,13 +84,3 @@ const UserPassword = {
     }
   }
 };
-
-const UsersSchemas = {
-  Token,
-  User,
-  UserToCreate,
-  UserInformations,
-  UserPassword
-};
-
-module.exports = UsersSchemas;

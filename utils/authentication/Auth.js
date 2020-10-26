@@ -1,23 +1,20 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-const JWT_CONFIG = require('../../app/config/jwt');
-const ROLES = require('../../app/constants/roles');
+import { ROLES } from './auth.config.js';
 
 
-class Auth {
+export default class Auth {
 
-  static sign(data) {
+  static sign(data, secret, timeLimit) {
     return jwt.sign(
       data,
-      JWT_CONFIG.SECRET,
-      {
-        expiresIn: JWT_CONFIG.EXPIRES_IN
-      }
+      secret,
+      { expiresIn: timeLimit }
     );
   }
 
-  static verify(token) {
-    return jwt.verify(token, JWT_CONFIG.SECRET);
+  static verify(token, secret) {
+    return jwt.verify(token, secret);
   }
 
   static checkMultiRoles(authorizedRoles, userRoles) {
@@ -30,11 +27,7 @@ class Auth {
   }
 
   static hasPublicRole(authorizedRoles) {
-    return authorizedRoles.find((role) => {
-      return role === ROLES.PUBLIC;
-    });
+    return authorizedRoles.find(authorizedRole => authorizedRole === ROLES.PUBLIC);
   }
 
 }
-
-module.exports = Auth;

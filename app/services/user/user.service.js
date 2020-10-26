@@ -1,84 +1,89 @@
-const Auth = require('../../../utils/authentication/Auth');
-const HttpResolver = require('../../../utils/loggers/HttpResolver');
-const Service = require('../../../utils/nodeExpress/Service');
+import Auth from 'node-rest/auth';
+import HttpResolver from 'node-rest/httpResolver';
+import Service from 'node-rest/service';
+import Password from 'node-rest/password';
 
-const REPOSITORIES = require('../../config/mysqlDb');
-const HTTP_METHODS = require('../../config/http-methods');
-const { HTTP_ERROR_CODES } = require('../../constants/errorCodes');
-const ROLES = require('../../constants/roles');
-
-const {
+import { JWT } from '../../config/secret.js';
+import { ROLES } from '../../config/roles.js';
+import {
   getUserSchema,
   postUserSchema,
   updateInformationsSchema,
   updatePasswordSchema
-} = require('./user.schema');
+} from './user.schema.js';
 
-const ConnexionController = require('../../../utils/authentication/Password');
 
-class UserService extends Service {
+export default class UserService extends Service {
 
   initRoute() {
     this.routesConfig = [
       {
         route: '/users',
         execute: 'get',
-        method: HTTP_METHODS.GET,
+        method: this.HTTP_METHODS.GET,
         schema: null,
-        roles: [ROLES.ADMIN, ROLES.INTERNE, ROLES.COEXIEN, ROLES.CESARIEN, ROLES.EXTERNE]
+        roles: [ROLES.ADMIN]
       },
       {
         route: '/users/current',
         execute: 'getCurrent',
-        method: HTTP_METHODS.GET,
+        method: this.HTTP_METHODS.GET,
         schema: null,
-        roles: [ROLES.ADMIN, ROLES.INTERNE, ROLES.COEXIEN, ROLES.CESARIEN, ROLES.EXTERNE]
+        roles: [ROLES.ADMIN]
       },
       {
         route: '/users/:id',
         execute: 'getById',
-        method: HTTP_METHODS.GET,
+        method: this.HTTP_METHODS.GET,
         schema: getUserSchema,
-        roles: [ROLES.ADMIN, ROLES.INTERNE, ROLES.COEXIEN, ROLES.CESARIEN, ROLES.EXTERNE]
+        roles: [ROLES.ADMIN]
       },
       {
         route: '/users',
         execute: 'post',
-        method: HTTP_METHODS.POST,
+        method: this.HTTP_METHODS.POST,
         schema: postUserSchema,
-        roles: [ROLES.PUBLIC]
+        roles: [ROLES.ADMIN]
       },
       {
         route: '/users/update-info',
         execute: 'updateInformations',
-        method: HTTP_METHODS.PUT,
+        method: this.HTTP_METHODS.PUT,
         schema: updateInformationsSchema,
-        roles: [ROLES.ADMIN, ROLES.INTERNE, ROLES.COEXIEN, ROLES.CESARIEN, ROLES.EXTERNE]
+        roles: [ROLES.ADMIN]
       },
       {
         route: '/users/update-pass',
         execute: 'updatePassword',
-        method: HTTP_METHODS.PUT,
+        method: this.HTTP_METHODS.PUT,
         schema: updatePasswordSchema,
-        roles: [ROLES.ADMIN, ROLES.INTERNE, ROLES.COEXIEN, ROLES.CESARIEN, ROLES.EXTERNE]
+        roles: [ROLES.ADMIN]
       }
     ];
   }
 
   async get(req, res) {
     try {
-      const users = await REPOSITORIES.users.findAll();
+      const users = await this.db.users.findAll();
       res.send(users);
     } catch (error) {
-      HttpResolver.handle(error, 'UserService#get', res);
+      HttpResolver.handle(
+        error,
+        `UserService#get`,
+        res
+      );
     }
   }
 
-  getCurrent(req, res) {
-    const token = Auth.verify(req.headers.authorization);
+  async getCurrent(req, res) {
+    const token = Auth.verify(req.headers.authorization, JWT.SECRET);
 
     if (!token || !token.id) {
-      return HttpResolver.handle(new Error('Invalid token - missing id'), 'UserService#getCurrent', res);
+      return HttpResolver.handle(
+        new Error(`Invalid token - missing id`),
+        `UserService#getCurrent`,
+        res
+      );
     }
 
     return this.getById(req, res, token.id);
@@ -86,10 +91,14 @@ class UserService extends Service {
 
   async getById(req, res, id = null) {
     try {
-      const user = await REPOSITORIES.users.findById(id || req.params.id);
+      const user = await this.db.users.findById(id || req.params.id);
       res.send(user);
     } catch (error) {
-      HttpResolver.handle(error, 'UserService#getById', res);
+      HttpResolver.handle(
+        error,
+        `UserService#getEvenementById`,
+        res
+      );
     }
   }
 
@@ -103,12 +112,16 @@ class UserService extends Service {
         password: await ConnexionController.hash(req.body.password),
         roles: req.body.roles
       };
-      const savedUserId = await REPOSITORIES.users.add(userSend);
-      const savedUser = await REPOSITORIES.users.findById(savedUserId);
+      const savedUserId = await this.db.users.add(userSend);
+      const savedUser = await this.db.users.findById(savedUserId);
 
       res.send(savedUser);
     } catch (error) {
-      HttpResolver.handle(error, 'UserService#post', res);
+      HttpResolver.handle(
+        error,
+        `UserService#post`,
+        res
+      );
     }
   }
 
@@ -121,12 +134,16 @@ class UserService extends Service {
     };
 
     try {
-      const updatedUserId = await REPOSITORIES.users.updateInformations(user);
-      const updatedUser = await REPOSITORIES.users.findById(updatedUserId);
+      const updatedUserId = await this.db.users.updateInformations(user);
+      const updatedUser = await this.db.users.findById(updatedUserId);
 
       res.send(updatedUser);
     } catch (error) {
-      HttpResolver.handle(error, 'UserService#updateInformations', res);
+      HttpResolver.handle(
+        error,
+        `UserService#updateInformations`,
+        res
+      );
     }
   }
 
@@ -138,29 +155,30 @@ class UserService extends Service {
     };
 
     try {
-      const actualUser = await REPOSITORIES.users.findPasswordById(sendUser.id);
+      const actualUser = await this.db.users.findPasswordById(sendUser.id);
 
-      if (await ConnexionController.validate(sendUser.password, actualUser.password)) {
-        await REPOSITORIES.users.updatePassword({
+      if (await Password.validate(sendUser.password, actualUser.password)) {
+        await this.db.users.updatePassword({
           id: sendUser.id,
-          password: await ConnexionController.hash(sendUser.newPassword)
+          password: await Password.hash(sendUser.newPassword)
         });
       } else {
-        return HttpResolver.handle(
-          {
-            code: HTTP_ERROR_CODES.UNAUTHORIZED,
-            message: 'ConnexionController#verifyPassword - passwords do not match'
-          },
-          'ConnexionService#post',
+        return HttpResolver.unauthorized(
+          new Date().getTime(),
+          `ConnexionService#verifyPassword`,
+          `passwords parse not match`,
           res
         );
       }
 
       return res.send();
     } catch (error) {
-      return HttpResolver.handle(error, 'UserService#updatePassword', res);
+      return HttpResolver.handle(
+        error,
+        `UserService#updatePassword`,
+        res
+      );
     }
   }
-}
 
-module.exports = UserService;
+}
