@@ -1,6 +1,5 @@
 #credentials ignore
-app/config/secret.js
-app/config/jwt.js
+secret.js
 
 # Logs
 logs
