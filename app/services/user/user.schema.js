@@ -3,7 +3,7 @@ import Joi from '@hapi/joi';
 
 export const getUserSchema = {
   query: Joi.object().keys({
-    id: Joi.any()
+    id: Joi.number().integer().required()
   })
 };
 

@@ -1,37 +1,75 @@
 import BddParser from './BddParser.js';
+import { MYSQL_PARSER_IDENTIFIER } from "./mysql-parser.config.js";
 
 
 export default class MysqlParser extends BddParser {
 
   static parse(sqlRequest, sqlParameters) {
-    let nextIndex = 0;
-    let formatedSqlRequest = sqlRequest.replace(/\s+/g, ' ');
+    const parsedSqlRequest = MysqlParser.removeUselessSpaces(sqlRequest);
+    const parametersCount = MysqlParser.getParametersCount(parsedSqlRequest);
+
+    if (parametersCount <= 0) {
+      return parsedSqlRequest;
+    }
+
+    const formatedSql = MysqlParser.normalizeParametersFormat(parsedSqlRequest, sqlParameters);
+
+    return {
+      sqlRequest: formatedSql.sqlRequest,
+      sqlParameters: formatedSql.sqlParameters
+    };
+  }
+
+  static normalizeParametersFormat(sqlRequest, sqlParameters) {
+    let normalizedSqlRequest = sqlRequest;
     let parametersArray = [];
-    const startReferenceString = '~';
-    const endReferenceRegex = /\s|,|;|\)/g;
-    let identifierLength = formatedSqlRequest.split(startReferenceString).length - 1;
+    const parametersCount = MysqlParser.getParametersCount(normalizedSqlRequest);
 
-    formatedSqlRequest = formatedSqlRequest.replace(/(\r\n|\n|\r)/gm, '');
+    for (let x = 0; x < parametersCount; x++) {
+      const firstCharParamIndex = normalizedSqlRequest.indexOf(
+        MYSQL_PARSER_IDENTIFIER.FIRST_CHAR,
+        0
+      );
 
-    if (identifierLength > 0) {
-      for (let x = 0; x < identifierLength; x++) {
-        let referenceIndex = formatedSqlRequest.indexOf(startReferenceString, nextIndex);
-
-        if (referenceIndex != -1 && typeof referenceIndex != `undefined`) {
-          let endReferenceIndex = referenceIndex + formatedSqlRequest.substring(referenceIndex).search(endReferenceRegex);
-          let parameterReference = formatedSqlRequest.substring(referenceIndex + 1, endReferenceIndex);
-          let replaceRegex = new RegExp(`\\${startReferenceString}${parameterReference}`, `g`);
-          nextIndex = endReferenceIndex;
-          formatedSqlRequest = formatedSqlRequest.replace(replaceRegex, '?');
-          parametersArray.push(sqlParameters[parameterReference]);
-        }
-      }
+      const parameterSize = MysqlParser.getParameterSize(firstCharParamIndex, normalizedSqlRequest);
+      const lastCharParamIndex = firstCharParamIndex + parameterSize;
+      const parameterStringIdentifier = normalizedSqlRequest.substring(firstCharParamIndex + 1, lastCharParamIndex);
+      normalizedSqlRequest = MysqlParser.normalizeParameterFormat(parameterStringIdentifier, normalizedSqlRequest);
+      parametersArray.push(sqlParameters[parameterStringIdentifier]);
     }
 
     return {
-      sqlRequest: formatedSqlRequest,
+      sqlRequest: normalizedSqlRequest,
       sqlParameters: parametersArray
-    }
+    };
+  }
+
+  static normalizeParameterFormat(parameterStringIdentifier, sqlRequest) {
+    return sqlRequest.replace(
+      `${MYSQL_PARSER_IDENTIFIER.FIRST_CHAR}${parameterStringIdentifier}`,
+      `?`
+    );
+  }
+
+  static getParameterSize(firstCharIndex, sqlRequest) {
+    const parameterSize = sqlRequest.substring(firstCharIndex).
+    search(MYSQL_PARSER_IDENTIFIER.END_CHAR);
+    return parameterSize;
+  }
+
+  static getParametersCount(sqlRequest) {
+    const parametersCount = sqlRequest.split(MYSQL_PARSER_IDENTIFIER.FIRST_CHAR).length - 1;
+
+    return parametersCount;
+  }
+
+  static removeUselessSpaces(originalString) {
+    const stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
+      /(\r\n|\n|\r)/gm,
+      ``
+    );
+
+    return stringWithoutUselessSpaces;
   }
 
 }
