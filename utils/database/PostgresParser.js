@@ -4,6 +4,17 @@ import BddParser from './BddParser.js';
 
 export default class PostgresParser extends BddParser {
 
+  static parse(sqlRequest) {
+    const parsedSqlRequest = PostgresParser.removeUselessSpaces(sqlRequest);
+    const parametersCount = PostgresParser.getParametersCount(parsedSqlRequest);
+
+    if (parametersCount <= 0) {
+      return parsedSqlRequest;
+    }
+
+    return PostgresParser.normalizeParametersFormat(parsedSqlRequest);
+  }
+
   static normalizeParametersFormat(sqlRequest) {
     let normalizedSqlRequest = sqlRequest;
     let prevParamLastCharIndex = 0;

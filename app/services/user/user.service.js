@@ -43,7 +43,7 @@ export default class UserService extends Service {
         execute: 'post',
         method: this.HTTP_METHODS.POST,
         schema: postUserSchema,
-        roles: [ROLES.ADMIN]
+        roles: [ROLES.PUBLIC]
       },
       {
         route: '/users/update-info',
@@ -89,9 +89,9 @@ export default class UserService extends Service {
     return this.getById(req, res, token.id);
   }
 
-  async getById(req, res, id = null) {
+  async getById(req, res) {
     try {
-      const user = await this.db.users.findById(id || req.params.id);
+      const user = await this.db.users.findById(req.params.id);
       res.send(user);
     } catch (error) {
       HttpResolver.handle(
@@ -105,15 +105,14 @@ export default class UserService extends Service {
   async post(req, res) {
     try {
       const userSend = {
-        id: req.body.id,
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         email: req.body.email,
-        password: await ConnexionController.hash(req.body.password),
+        password: await Password.hash(req.body.password),
         roles: req.body.roles
       };
-      const savedUserId = await this.db.users.add(userSend);
-      const savedUser = await this.db.users.findById(savedUserId);
+      await this.db.users.add(userSend);
+      const savedUser = await this.db.users.findByMail(userSend.email);
 
       res.send(savedUser);
     } catch (error) {

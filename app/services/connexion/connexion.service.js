@@ -24,14 +24,15 @@ export default class ConnexionService extends Service {
 
   async connexion(req, res) {
     const login = {
-      mail: req.body.mail,
-      motDePasse: req.body.password
+      email: req.body.email,
+      password: req.body.password
     };
 
     try {
-      const user = await this.db.users.findByMail(login.mail);
+      const user = await this.db.users.findByMail(login.email);
 
-      if (!await Password.validate(login.motDePasse, user.motDePasse)) {
+      console.log(login.password, user.password)
+      if (!await Password.validate(login.password, user.password)) {
         return HttpResolver.unauthorized(
           new Date().getTime(),
           `ConnexionController#verifyPassword - passwords parse not match`,

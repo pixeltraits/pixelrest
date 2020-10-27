@@ -4,15 +4,35 @@ import Logger from 'node-rest/logger';
 
 export default class UsersRepository extends Repository {
 
+  async createDataBase(user) {
+    try {
+      await this.query(
+        `
+        CREATE TABLE users
+        (
+          id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+          firstname VARCHAR(100) NOT NULL, 
+          lastname VARCHAR(100) NOT NULL, 
+          email VARCHAR(100) UNIQUE NOT NULL, 
+          password VARCHAR(100) NOT NULL, 
+          roles VARCHAR(100) NOT NULL
+        );
+      `,
+        user
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
+  }
+
   async add(user) {
     let userAdded;
 
     try {
       userAdded = await this.query(
         `
-        INSERT INTO users (firstname, lastname, email, password, roles) 
-        VALUES (~firstname, ~lastname, ~email, ~password, ~roles);
-        SELECT LAST_INSERT_ID();
+        INSERT INTO users 
+        VALUES (null, ~firstname, ~lastname, ~email, ~password, ~roles);
       `,
         user
       );
