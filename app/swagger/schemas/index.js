@@ -4,7 +4,7 @@ import { Token, User, UserToCreate, UserInformations, UserPassword } from './use
 export const SCHEMAS = {
   Login,
   Token,
-  User, 
+  User,
   UserToCreate,
   UserInformations,
   UserPassword
