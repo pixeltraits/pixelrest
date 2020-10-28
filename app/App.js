@@ -7,7 +7,6 @@ import MysqlParser from 'node-rest/mysqlParser';
 
 import { JWT } from './config/secret.js';
 import { REPOSITORIES } from './repositories/index.js';
-import { mysql } from './config/mysqlDb.js';
 import { SERVER } from './config/server.js';
 import { SERVICES } from './services/index.js';
 import { SWAGGER_CONFIG } from './config/swagger.js';
@@ -15,7 +14,7 @@ import { SWAGGER_CONFIG } from './config/swagger.js';
 
 export default class App {
 
-  constructor() {
+  constructor(mysqlConnection) {
     this.app = express();
     this.repositories = {};
 
@@ -24,7 +23,7 @@ export default class App {
       this.makeLogger();
       this.makeSwagger();
       this.makeHeaders();
-      this.makeRepositories();
+      this.makeRepositories(mysqlConnection);
       this.makeRoutes();
       this.makeErrorHandler();
     } catch (error) {
@@ -42,13 +41,13 @@ export default class App {
     });
   }
 
-  makeRepositories() {
+  makeRepositories(mysqlConnection) {
     const repositoryKeys = Object.keys(REPOSITORIES);
 
     repositoryKeys.forEach(repositoryKey => {
       const RepositoryClass = REPOSITORIES[repositoryKey];
 
-      this.repositories[repositoryKey] = new RepositoryClass(mysql, MysqlParser);
+      this.repositories[repositoryKey] = new RepositoryClass(mysqlConnection, MysqlParser);
     });
   }
 
