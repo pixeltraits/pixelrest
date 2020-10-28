@@ -6,10 +6,14 @@ export default class MysqlParser extends BddParser {
 
   static parse(sqlRequest, sqlParameters) {
     const parsedSqlRequest = MysqlParser.removeUselessSpaces(sqlRequest);
+
     const parametersCount = MysqlParser.getParametersCount(parsedSqlRequest);
 
     if (parametersCount <= 0) {
-      return parsedSqlRequest;
+      return {
+        sqlRequest: parsedSqlRequest,
+        sqlParameters: []
+      };
     }
 
     const formatedSql = MysqlParser.normalizeParametersFormat(parsedSqlRequest, sqlParameters);
