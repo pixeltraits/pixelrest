@@ -10,30 +10,22 @@ export default class Collection {
     return total;
   }
 
-  static uniqBy(collection, field) {
-    const result = [];
-    collection.forEach(row => {
-      const found = result.find(r => r[field] === row[field]);
-      if (!found) {
-        result.push({ ...row });
-      }
-    });
-    return result;
-  }
+  static removeDuplicatesByField(collection, field) {
+    const newCollection = [];
 
-  static uniqByField(collection, field) {
-    const result = [];
-    collection.forEach(row => {
-      const found = result.find(r => r === row[field]);
-      if (!found) {
-        result.push(row[field]);
+    collection.forEach(collectionObject => {
+      const isExist = newCollection.find(newCollectionObject => newCollectionObject[field] === collectionObject[field]);
+      if (!isExist) {
+        newCollection.push(collectionObject);
       }
     });
-    return result;
+
+    return newCollection;
   }
 
   static filterByField(collection, field) {
     const filteredCollection = [];
+
     collection.forEach(row => {
       filteredCollection.push(row[field]);
     });
@@ -41,7 +33,7 @@ export default class Collection {
     return filteredCollection;
   }
 
-  static async promiseAllCollectionByCollection(collection, promiseReference) {
+  static async promiseAllByCollection(collection, promiseReference) {
     const collectionLength = collection.length;
     const promises = [];
 
@@ -54,7 +46,7 @@ export default class Collection {
     return Promise.all(promises);
   }
 
-  static async promiseAllCollectionByCollectionWithOptions(collection, options, promiseReference) {
+  static async promiseAllByCollectionWithOptions(collection, options, promiseReference) {
     const collectionLength = collection.length;
     const promises = [];
 
@@ -65,35 +57,6 @@ export default class Collection {
     }
 
     return Promise.all(promises);
-  }
-
-  static transformTableToObject(objectIds, table) {
-    const objectIdsLength = objectIds.length;
-    const newObject = {};
-
-    for (let x = 0; x < objectIdsLength; x++) {
-      newObject[objectIds[x]] = table[x];
-    }
-
-    return newObject;
-  }
-
-  static isInArray(table, value) {
-    if (table.find(row => row === value)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  static generateIntTable(starter, tableLength) {
-    const intTable = [];
-
-    for (let x = starter; x < tableLength; x++) {
-      intTable.push(x);
-    }
-
-    return intTable;
   }
 
 }

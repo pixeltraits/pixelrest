@@ -103,6 +103,27 @@ export default class UsersRepository extends Repository {
     return user;
   }
 
+  async findByMailWithPassword(email) {
+    let user;
+
+    try {
+      user = await this.query(
+        `
+          SELECT id, roles, firstname, lastname, email, password
+          FROM users
+          WHERE email = ~email;
+        `,
+        {
+          email: email
+        }
+      );
+    } catch (error) {
+      Logger.handleSQLError(error);
+    }
+
+    return user[0];
+  }
+
   async findPasswordById(id) {
     let password;
 

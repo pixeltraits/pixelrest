@@ -1,34 +1,31 @@
 import express from 'express';
-import multer from 'multer';
 
 import Auth from 'node-rest/auth';
+import Middleware from 'node-rest/middleware';
 import HttpResolver from 'node-rest/httpResolver';
 
 import { HTTP_METHODS } from './http-methods.config.js';
 import { SERVICE_ERRORS, TOKEN_ERROR_CODES } from './service-errors.config.js';
 
-
+/**
+ * @abstract
+ * @class Service
+ */
 export default class Service {
   /**
    * Constructor
    * @method constructor
-   * @param {DatabaseGateway} databaseGateway - DatabaseGateway instance
+   * @param {string} tokenSecret - Token password
    * @return {void}
    */
-  constructor(poolBdd, tokenSecret) {
+  constructor(tokenSecret) {
     this.router = express.Router();
     this.routesConfig = [];
     this.tokenData = null;
     this.tokenSecret = tokenSecret;
     this.HTTP_METHODS = HTTP_METHODS;
 
-    this.router.use((req, res, next) => {
-      next();
-    });
-
-    this.poolBdd = poolBdd;
     this.initRoute();
-    this.initModel();
 
     this.routesConfig.forEach((routeConfig, index) => {
       if (!routeConfig.schema) {
@@ -36,238 +33,170 @@ export default class Service {
       }
 
       if (routeConfig.multerConfig) {
-        this.routeWithFileUpload(routeConfig);
+        this.addRouteWithMulter(routeConfig);
       } else {
-        this.routeWithoutFileUpload(routeConfig);
+        this.addRouteWithoutMulter(routeConfig);
       }
     });
   }
-
-  routeWithFileUpload(routeConfig) {
-    const multerConfig = routeConfig.multerConfig;
-    const multerMiddleware = multer({
-      dest: multerConfig.uploadDirectory,
-      limits: multerConfig.limits,
-      fileFilter: (req, file, cb) => {
-        if (multerConfig.allowedMimeTypes.findIndex(allowedMimeType => allowedMimeType === file.mimetype) === -1) {
-          return cb(new Error(`Ce mime type n'est pas autorisé`));
-        }
-        return cb(null, true);
-      }
-    });
-
-    this.router[routeConfig.method](
-      routeConfig.route,
-      multerMiddleware[multerConfig.multerMethodName](multerConfig.documentFieldName),
-      Service.parseBodyMulter,
-      (req, res, next) => this.joiMiddleware(req, res, next, routeConfig.schema),
-      (req, res) => {
-        if (this.authorizationControl(req, res, routeConfig)) {
-          this[routeConfig.execute](req, res);
-        }
-      }
-    );
-  }
-
-  static parseBodyMulter(req, res, next) {
-    const body = req.body;
-
-    if (body.length === 0) {
-      return next();
-    }
-
-    Object.keys(req.body).forEach(bodyProperty => {
-      if (
-        body[bodyProperty][0] === '{' &&
-        body[bodyProperty][body[bodyProperty].length - 1] === '}'
-      ) {
-        body[bodyProperty] = JSON.parse(body[bodyProperty]);
-      }
-    });
-
-    req.body = body;
-    return next();
-  }
-
-  routeWithoutFileUpload(routeConfig) {
-    this.router[routeConfig.method](
-      routeConfig.route,
-      (req, res, next) => this.joiMiddleware(req, res, next, routeConfig.schema),
-      (req, res) => {
-        if (this.authorizationControl(req, res, routeConfig)) {
-          this[routeConfig.execute](req, res);
-        }
-      }
-    );
-  }
-
-  joiMiddleware(req, res, next, schema) {
-    if (schema) {
-      if (schema.body) {
-        const error = this.joiValidation(req.body, schema.body, res);
-        if (error) {
-          return this.getValidationErrorResponse(error, res);
-        }
-      }
-      if (schema.params) {
-        const error = this.joiValidation(req.params, schema.params, res);
-        if (error) {
-          return this.getValidationErrorResponse(error, res);
-        }
-      }
-      if (schema.query) {
-        const error = this.joiValidation(req.query, schema.query, res);
-        if (error) {
-          return this.getValidationErrorResponse(error, res);
-        }
-      }
-    }
-
-    next();
-  }
-
-  joiValidation(requestSegment, schemaSegment) {
-    const { error } = schemaSegment.validate(requestSegment);
-    return error;
-  }
-
-  getValidationErrorResponse(error, res) {
-    return HttpResolver.serviceUnavailable(
-      new Date().getTime(),
-      `Joi`,
-      `Erreur lors de la validation des paramètres de la requète:\n ${error}`,
-      res
-    );
-  }
-
   /**
-   * Define route of the service
+   * Define all service routes
+   * This methode must be override
+   * In the override version this.routesConfig must be setted
+   * This method is called in constructor before Express router configuration
+   * @private
    * @method initRoute
    * @return {void}
    */
   initRoute() {
     throw new Error(`${SERVICE_ERRORS.INIT_ROUTE}${this.constructor.name}`);
   }
-
   /**
-   * Transmit db instance to models of the service !!! Retro Compatibilité, finir la derniere revision des services
-   * @method initModel
+   * Set all repositories instances
+   * @public
+   * @method setRepositories
+   * @params {} - repositories
    * @return {void}
    */
-  initModel() {
+  setRepositories(repositories) {
+    this.repositories = repositories;
   }
-
   /**
-   * Transmit db instance to models of the service
-   * @method setModel
-   * @return {void}
-   */
-  setModel(db) {
-    this.db = db;
-  }
-
-  /**
-   * Get router instance
+   * Get express router instance
+   * @public
    * @method getRouter
    * @return {expressRouter} - Express router instance
    */
   getRouter() {
     return this.router;
   }
-
   /**
-   * Notify empty token error
-   * @method emptyTokenError
-   * @param {HttpResponse} res
-   * @param {routeConfig} routeConfig - Route configuration
+   * ExpressRouter - Add route without multer config
+   * @private
+   * @method addRouteWithoutFileUpload
+   * @param {RouteConfig} routeConfig - ????
    * @return {void}
    */
-  emptyTokenError(res) {
-    HttpResolver.unauthorized(
-      new Date().getTime(),
-      `Service token control`,
-      `Aucun token reçu`,
-      res
+  addRouteWithoutMulter(routeConfig) {
+    this.router[routeConfig.method](
+      routeConfig.route,
+      (req, res, next) => Middleware.joi(req, res, next, routeConfig.schema),
+      (req, res) => this.authorizationMiddleware(req, res, routeConfig.roles),
+      (req, res) => this.serviceMethodExecution(req, res, routeConfig.execute)
     );
   }
-
   /**
-   * Notify token error
-   * @method tokenError
-   * @param {HttpResponse} res
-   * @param {object} error - JWT token error object
-   * @param {routeConfig} routeConfig - Route configuration
+   * ExpressRouter - Add route with multer config
+   * @private
+   * @method addRouteWithMulter
+   * @param {RouteConfig} routeConfig
    * @return {void}
    */
-  tokenError(error, res) {
-    if (error.name === TOKEN_ERROR_CODES.EXPIRED) {
-      return HttpResolver.tokenExpired(
-        new Date().getTime(),
-        `Service token control`,
-        `Le token a expiré`,
-        res
-      );
-    }
-
-    return HttpResolver.unauthorized(
-      new Date().getTime(),
-      `Service token control`,
-      `Utilisateur non autorisé`,
-      res
+  addRouteWithMulter(routeConfig) {
+    this.router[routeConfig.method](
+      routeConfig.route,
+      (req, res) => Middleware.multer(req, res, routeConfig.multerConfig),
+      (req, res, next) => Middleware.parseMulterBody(req, res, next),
+      (req, res, next) => Middleware.joi(req, res, next, routeConfig.schema),
+      (req, res, next) => this.authorizationMiddleware(req, res, next, routeConfig.roles),
+      (req, res) => this.serviceMethodExecution(req, res, routeConfig.execute)
     );
   }
-
   /**
-   * Notify role error
-   * @method roleError
-   * @param {HttpResponse} res
-   * @param {routeConfig} routeConfig - Route configuration
-   * @param {string[]} userRoles - User's roles
+   * Middleware - Acces route control, with token and roles
+   * @private
+   * @method authorizationMiddleware
+   * @param {Object} req
+   * @param {Object} res
+   * @param {function} next
+   * @param {string[]} authorizedRoles
    * @return {void}
    */
-  roleError(res) {
-    HttpResolver.unauthorized(
-      new Date().getTime(),
-      `Service token control`,
-      `Utilisateur n'a pas les droits suffisant`,
-      res
-    );
-  }
-
-  /**
-   * Acces route control
-   * @method authorizationControl
-   * @param {HttpRequest} req
-   * @param {HttpResponse} res
-   * @param {routeConfig} routeConfig - Route configuration
-   * @return {boolean} authorization value
-   */
-  authorizationControl(req, res, routeConfig) {
-    if (Auth.hasPublicRole(routeConfig.roles)) {
-      return true;
-    }
-
+  authorizationMiddleware(req, res, next, authorizedRoles) {
     const token = req.headers.authorization;
+
+    if (Auth.hasPublicRole(authorizedRoles)) {
+      next();
+    }
+
     if (!token) {
-      this.emptyTokenError(res);
-      return false;
+      Service.sendEmptyTokenError(res);
     }
 
     try {
       this.tokenData = Auth.verify(token, this.tokenSecret);
     } catch (error) {
-      this.tokenError(error, res);
-      return false;
+      Service.sendTokenError(res, error);
     }
 
-    const userRoles = this.tokenData.roles;
-    const authorizedRoles = routeConfig.roles;
-    if (!Auth.checkMultiRoles(authorizedRoles, userRoles)) {
-      this.roleError(res);
-      return false;
+    if (!Auth.checkMultiRoles(authorizedRoles, this.tokenData.roles)) {
+      Service.sendRoleError(res);
     }
 
-    return true;
+    next();
   }
 
+  /**
+   * Tool - Service code execution
+   * @private
+   * @method serviceMethodExecution
+   * @param {Object} req
+   * @param {Object} res
+   * @param {string} methodeName
+   * @return {void}
+   */
+  serviceMethodExecution(req, res, methodeName) {
+    this[methodeName](req, res);
+  }
+  /**
+   * Tool - Send empty token http error
+   * @private
+   * @method sendEmptyTokenError
+   * @param {Object} res
+   * @return {void}
+   */
+  static sendEmptyTokenError(res) {
+    HttpResolver.unauthorized(
+      `Service token control`,
+      `Any token received`,
+      res
+    );
+  }
+  /**
+   * Tool - Send token http error
+   * @private
+   * @method sendTokenError
+   * @param {Object} res
+   * @param {error} error
+   * @return {void}
+   */
+  static sendTokenError(res, error) {
+    if (error.name === TOKEN_ERROR_CODES.EXPIRED) {
+      return HttpResolver.tokenExpired(
+        `Service token control`,
+        `The token has expired`,
+        res
+      );
+    }
+
+    return HttpResolver.unauthorized(
+      `Service token control`,
+      `The user is not authorized`,
+      res
+    );
+  }
+  /**
+   * Tool - Send role http error
+   * @private
+   * @method sendRoleError
+   * @param {Object} res
+   * @return {void}
+   */
+  static sendRoleError(res) {
+    HttpResolver.unauthorized(
+      `Service token control`,
+      `This user has not suffisent rights`,
+      res
+    );
+  }
 }

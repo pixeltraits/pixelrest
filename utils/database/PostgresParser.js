@@ -4,7 +4,7 @@ import BddParser from './BddParser.js';
 
 export default class PostgresParser extends BddParser {
 
-  static parse(sqlRequest) {
+  parse(sqlRequest) {
     const parsedSqlRequest = PostgresParser.removeUselessSpaces(sqlRequest);
     const parametersCount = PostgresParser.getParametersCount(parsedSqlRequest);
 
@@ -58,10 +58,18 @@ export default class PostgresParser extends BddParser {
   }
 
   static removeUselessSpaces(originalString) {
-    const stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
+    let stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
       /(\r\n|\n|\r)/gm,
       ``
     );
+
+    if (stringWithoutUselessSpaces[0] === ` `) {
+      stringWithoutUselessSpaces = stringWithoutUselessSpaces.substring(1, stringWithoutUselessSpaces.length - 1);
+    }
+
+    if (stringWithoutUselessSpaces[stringWithoutUselessSpaces.length - 1] === ` `) {
+      stringWithoutUselessSpaces = stringWithoutUselessSpaces.substring(0, stringWithoutUselessSpaces.length - 2);
+    }
 
     return stringWithoutUselessSpaces;
   }

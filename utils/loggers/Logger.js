@@ -1,5 +1,5 @@
-import fs from 'fs';
-import rfs from 'rotating-file-stream';
+import logLevel from 'loglevel';
+import fsPromises from 'fs/promises';
 
 import {
   DEFAULT_LOG_CONFIG
@@ -8,75 +8,54 @@ import {
 
 export default class Logger {
 
-  static handleLog(log, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
-    Logger.addLogToFile(log);
-    rfs.createStream(
-      logFilePath.pathname,
-      {
-        size: `100M`
-      }
-    );
+  static async handleLog(log, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    logLevel.info(log);
+    await Logger.addLogToFile(log, logFilePath);
   }
 
-  static handleError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
-    console.log(error);
-    Logger.addLogToFile(error);
-    rfs.createStream(
-      logFilePath.pathname,
-      {
-        size: `100M`
-      }
-    );
+  static async handleError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    logLevel.debug(error);
+    await Logger.addLogToFile(error, logFilePath);
   }
 
-  static addLogToFile(newLogs, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE, logDirPath = DEFAULT_LOG_CONFIG.LOG_DIR) {
-    fs.readFile(
-      logFilePath,
-      `utf-8`,
-      (readingError, existingLogs) => {
-        if (readingError) {
-          if (readingError.code === `ENOENT`) {
-            fs.mkdir(
-              logDirPath,
-              (error) => {
-                if (!error || (error && error.code !== `EEXIST`)) {
-                  Logger.updateLogFile(existingLogs, newLogs, logFilePath);
-                }
-              }
-            );
+  static async handleSQLError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    logLevel.debug(error);
+    await Logger.addLogToFile(error, logFilePath);
+  }
+
+  static async addLogToFile(newLogs, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    const logDirPath = new URL(logFilePath.href.substring(0, logFilePath.href.lastIndexOf('/')));
+
+    try {
+      const existingLogs = await fsPromises.readFile(logFilePath, `utf-8`);
+      await Logger.updateLogFile(existingLogs, newLogs, logFilePath);
+    } catch (error) {
+      if (error.code === `ENOENT`) {
+        try {
+          await fsPromises.mkdir(logDirPath);
+          await Logger.updateLogFile(``, newLogs, logFilePath);
+        } catch (errorDir) {
+          if (errorDir.code === `EEXIST`) {
+            await Logger.updateLogFile(``, newLogs, logFilePath);
           } else {
-            throw readingError;
+            logLevel.error(`There is something wrong with log directory =>`);
+            logLevel.error(errorDir);
           }
-        } else {
-          Logger.updateLogFile(existingLogs, newLogs, logFilePath);
         }
+      } else {
+        logLevel.error(`There is something wrong with log file(reading) =>`);
+        logLevel.error(error);
       }
-    );
+    }
   }
 
-  static updateLogFile(existingLogs, newLogs, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
-    fs.writeFile(
-      logFilePath,
-      `${existingLogs}${newLogs}`,
-      `utf-8`,
-      writingError => {
-        if (writingError) {
-          throw writingError;
-        }
-      }
-    );
-  }
-
-  static handleSQLError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
-    console.log(error);
-    Logger.addLogToFile(error);
-    rfs.createStream(
-      logFilePath.pathname,
-      {
-        size: `100M`
-      }
-    );
-    throw new Error(`SQL ERROR`);
+  static async updateLogFile(existingLogs, newLogs, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    try {
+      await fsPromises.writeFile(logFilePath, `${existingLogs}${newLogs}`, `utf-8`);
+    } catch (error) {
+      logLevel.error(`There is something wrong with log file(writing) =>`);
+      logLevel.error(error);
+    }
   }
 
 }

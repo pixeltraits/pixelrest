@@ -4,7 +4,7 @@ import { MYSQL_PARSER_IDENTIFIER } from "./mysql-parser.config.js";
 
 export default class MysqlParser extends BddParser {
 
-  static parse(sqlRequest, sqlParameters) {
+  parse(sqlRequest, sqlParameters) {
     const parsedSqlRequest = MysqlParser.removeUselessSpaces(sqlRequest);
 
     const parametersCount = MysqlParser.getParametersCount(parsedSqlRequest);
@@ -68,10 +68,18 @@ export default class MysqlParser extends BddParser {
   }
 
   static removeUselessSpaces(originalString) {
-    const stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
+    let stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
       /(\r\n|\n|\r)/gm,
       ``
     );
+
+    if (stringWithoutUselessSpaces[0] === ` `) {
+      stringWithoutUselessSpaces = stringWithoutUselessSpaces.substring(1, stringWithoutUselessSpaces.length - 1);
+    }
+
+    if (stringWithoutUselessSpaces[stringWithoutUselessSpaces.length - 1] === ` `) {
+      stringWithoutUselessSpaces = stringWithoutUselessSpaces.substring(0, stringWithoutUselessSpaces.length - 2);
+    }
 
     return stringWithoutUselessSpaces;
   }
