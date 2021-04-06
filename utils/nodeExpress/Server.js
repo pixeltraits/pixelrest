@@ -1,23 +1,22 @@
-import http from 'http';
 import nodemon from 'nodemon';
 
-import Loggers from 'node-rest/logger';
+import Logger from 'node-rest/logger';
 import { SERVER_ERROR_CODES } from './server-errors.config.js';
 
-
+/**
+ * @class Server
+ */
 export default class Server {
-
-  constructor(expressApp, serverConfig) {
-    this.config = serverConfig;
-    this.server = http.createServer(expressApp);
-    this.server.listen(this.config.PORT);
-    this.server.on('error', error => Server.onError(error, this.config.PORT));
-    this.server.on('listening', event => Server.onListening(this.config.HOST, this.config.PORT));
-  }
-
+  /**
+   * @static
+   * @method onError
+   * @param {object} error - Js Error oject
+   * @param {number} port - Server port
+   * @return {void}
+   */
   static onError(error, port) {
     if (error.code === SERVER_ERROR_CODES.PORT_ALREADY_IN_USE) {
-      Loggers.handleError(`Port ${port} already in use`);
+      Logger.handleError(`Port ${port} already in use`);
 
       nodemon.once(
         'exit',
@@ -31,9 +30,14 @@ export default class Server {
 
     throw error;
   }
-
+  /**
+   * @static
+   * @method onListening
+   * @param {string} host - Server domain
+   * @param {number} port - Server port
+   * @return {void}
+   */
   static onListening(host, port) {
-    Loggers.handleLog(`Listening on ${host}:${port}`);
+    Logger.handleLog(`Listening on ${host}:${port}`);
   }
-
 }

@@ -29,12 +29,10 @@ export default class ConnexionService extends Service {
     };
 
     try {
-      const user = await this.db.users.findByMail(login.email);
+      const user = await this.db.users.findByMailWithPassword(login.email);
 
-      console.log(login.password, user.password)
       if (!await Password.validate(login.password, user.password)) {
         return HttpResolver.unauthorized(
-          new Date().getTime(),
           `ConnexionController#verifyPassword - passwords parse not match`,
           `passwords parse not match`,
           res

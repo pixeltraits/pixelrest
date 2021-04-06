@@ -2,7 +2,8 @@ export const HTTP_ERRORS = {
   TOKEN_EXPIRED: `Le token est expiré`,
   CONTENT_ALREADY_EXISTS: `Le contenu existe déjà.`,
   UNAUTHORIZED: `Le mot de passe et l'identifiant utilisateur ne correspondent pas`,
-  BAD_REQUEST: `Bad request`
+  BAD_REQUEST: `Bad request`,
+  NO_CONTENT: `No content`
 };
 
 export const SQL_ERROR_CODES = {

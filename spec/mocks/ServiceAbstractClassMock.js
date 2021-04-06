@@ -1,19 +1,20 @@
-const Service = require('../../src/utils/Service');
+import Service from 'node-rest/service';
 
-class ServiceAbstractClassMock extends Service {
+
+export default class ServiceAbstractClassMock extends Service {
 
   initRoute() {
     this.routesConfig = [
       {
         route: '/public-route',
-        execute: 'mock',
+        execute: 'publicServiceMethod',
         method: 'post',
         schema: null,
         roles: ['public']
       },
       {
         route: '/admin-route',
-        execute: 'mock',
+        execute: 'adminRoleServiceMethod',
         method: 'post',
         schema: null,
         roles: ['admin']
@@ -21,10 +22,12 @@ class ServiceAbstractClassMock extends Service {
     ];
   }
 
-  mock(req, res) {
+  publicServiceMethod(req, res) {
+
+  }
+
+  adminRoleServiceMethod(req, res) {
 
   }
 
 }
-
-module.exports = ServiceAbstractClassMock;

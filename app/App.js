@@ -3,6 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import morgan from 'morgan';
 
 import Logger from 'node-rest/logger';
+import Server from 'node-rest/server';
 import MysqlParser from 'node-rest/mysqlParser';
 
 import { JWT } from './config/secret.js';
@@ -13,10 +14,20 @@ import { SWAGGER_CONFIG } from './config/swagger.js';
 
 
 export default class App {
-
-  constructor(mysqlConnection) {
-    this.app = express();
+  /**
+   * Constructor
+   * @method constructor
+   * @param {object} expressApp - Express App instance
+   * @param {object} serverConfig - Server config
+   * @return {void}
+   */
+  constructor(mysqlConnection, serverConfig) {
+    this.expressApp = express();
+    this.serverConfig = serverConfig;
     this.repositories = {};
+    this.expressApp.listen(this.serverConfig.PORT);
+    this.expressApp.on('error', error => Server.onError(error, this.serverConfig.PORT));
+    this.expressApp.on('listening', event => Server.onListening(this.serverConfig.HOST, this.serverConfig.PORT));
 
     try {
       this.makeJsonParser();
@@ -32,12 +43,12 @@ export default class App {
   }
 
   makeErrorHandler() {
-    this.app.use((err, req, res, next) => {
+    this.expressApp.use((error, req, res, next) => {
       if (res.headersSent) {
-        return next(err);
+        return next(error);
       }
-      Logger.handleError(err.stack);
-      return res.status(err.status || 500).send({ message: err });
+      Logger.handleError(error.stack);
+      return res.status(error.status || 500).send({ message: error });
     });
   }
 
@@ -45,27 +56,25 @@ export default class App {
     const repositoryKeys = Object.keys(REPOSITORIES);
 
     repositoryKeys.forEach(repositoryKey => {
-      const RepositoryClass = REPOSITORIES[repositoryKey];
-
-      this.repositories[repositoryKey] = new RepositoryClass(mysqlConnection, MysqlParser);
+      this.repositories[repositoryKey] = new REPOSITORIES[repositoryKey](mysqlConnection, MysqlParser);
     });
   }
 
   makeRoutes() {
     for (let x = 0; x < SERVICES.length; x++) {
-      const service = new SERVICES[x](this.repositories.pool, JWT.SECRET);
-      service.setModel(this.repositories);
-      this.app.use('/', service.getRouter());
+      const service = new SERVICES[x](JWT.SECRET);
+      service.setRepositories(this.repositories);
+      this.expressApp.use('/', service.getRouter());
     }
   }
 
   makeJsonParser() {
-    this.app.use(express.json({ limit: SERVER.MAX_JSON_REQUEST_SIZE }));
-    this.app.use(express.urlencoded({ extended: false }));
+    this.expressApp.use(express.json({ limit: SERVER.MAX_JSON_REQUEST_SIZE }));
+    this.expressApp.use(express.urlencoded({ extended: false }));
   }
 
   makeSwagger() {
-    this.app.use(
+    this.expressApp.use(
       '/api-docs',
       swaggerUi.serve,
       swaggerUi.setup(SWAGGER_CONFIG)
@@ -73,7 +82,7 @@ export default class App {
   }
 
   makeHeaders() {
-    this.app.use((req, res, next) => {
+    this.expressApp.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE, OPTIONS');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
@@ -83,11 +92,11 @@ export default class App {
   }
 
   makeLogger() {
-    this.app.use(morgan('dev'));
+    this.expressApp.use(morgan('dev'));
   }
 
   getExpressApp() {
-    return this.app;
+    return this.expressApp;
   }
 
 }
