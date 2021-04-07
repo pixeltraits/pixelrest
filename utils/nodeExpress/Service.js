@@ -28,15 +28,7 @@ export default class Service {
     this.initRoute();
 
     this.routesConfig.forEach((routeConfig, index) => {
-      if (!routeConfig.schema) {
-        this.routesConfig[index].schema = [];
-      }
-
-      if (routeConfig.multerConfig) {
-        this.addRouteWithMulter(routeConfig);
-      } else {
-        this.addRouteWithoutMulter(routeConfig);
-      }
+      this.addRoute(routeConfig);
     });
   }
   /**
@@ -77,29 +69,28 @@ export default class Service {
    * @param {RouteConfig} routeConfig - ????
    * @return {void}
    */
-  addRouteWithoutMulter(routeConfig) {
-    this.router[routeConfig.method](
-      routeConfig.route,
-      (req, res, next) => Middleware.joi(req, res, next, routeConfig.schema),
-      (req, res) => this.authorizationMiddleware(req, res, routeConfig.roles),
-      (req, res) => this.serviceMethodExecution(req, res, routeConfig.execute)
-    );
-  }
-  /**
-   * ExpressRouter - Add route with multer config
-   * @private
-   * @method addRouteWithMulter
-   * @param {RouteConfig} routeConfig
-   * @return {void}
-   */
-  addRouteWithMulter(routeConfig) {
-    this.router[routeConfig.method](
-      routeConfig.route,
-      (req, res) => Middleware.multer(req, res, routeConfig.multerConfig),
-      (req, res, next) => Middleware.parseMulterBody(req, res, next),
+  addRoute(routeConfig) {
+    const multerMiddlewares = [
+      (req, res, next) => Middleware.multer(req, res, next, routeConfig.multerConfig),
+      (req, res, next) => Middleware.parseMulterBody(req, res, next)
+    ];
+    const commonMiddlewares = [
       (req, res, next) => Middleware.joi(req, res, next, routeConfig.schema),
       (req, res, next) => this.authorizationMiddleware(req, res, next, routeConfig.roles),
       (req, res) => this.serviceMethodExecution(req, res, routeConfig.execute)
+    ];
+    let middlewares = commonMiddlewares;
+
+    if (routeConfig.multerConfig) {
+      middlewares = [
+        ...multerMiddlewares,
+        ...commonMiddlewares
+      ]
+    }
+
+    this.router[routeConfig.method](
+      routeConfig.route,
+      ...middlewares
     );
   }
   /**
@@ -171,7 +162,7 @@ export default class Service {
    * @return {void}
    */
   static sendTokenError(res, error) {
-    if (error.name === TOKEN_ERROR_CODES.EXPIRED) {
+    if (error.message === TOKEN_ERROR_CODES.EXPIRED) {
       return HttpResolver.tokenExpired(
         `Service token control`,
         `The token has expired`,

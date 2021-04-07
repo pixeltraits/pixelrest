@@ -26,8 +26,9 @@ describe('Auth', () => {
 
     it(`return a json web token`, () => {
       const token = Auth.sign(data, secret, timeLimit);
+      const tokenData = jwt.verify(token, secret);
 
-      expect(expectedToken).toEqual(token);
+      expect(tokenData).toEqual(jasmine.objectContaining(data));
     });
 
   });
