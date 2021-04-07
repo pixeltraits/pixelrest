@@ -4,5 +4,5 @@ export const SERVICE_ERRORS = {
 };
 
 export const TOKEN_ERROR_CODES = {
-  EXPIRED: `TokenExpiredError`
+  EXPIRED: `jwt expired`
 };

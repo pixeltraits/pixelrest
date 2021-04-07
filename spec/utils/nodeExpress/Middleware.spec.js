@@ -8,12 +8,13 @@ import { SERVICE_ERRORS } from "../../../utils/nodeExpress/service-errors.config
 
 describe('Middleware', () => {
 
+  const methodProp = {
+    next: () => {}
+  };
+
   describe(`parseMulterBody should`, () => {
 
     const res = {};
-    const methodProp = {
-      next: () => {}
-    };
 
     it(`parse json string in multer body and call next`, () => {
       const req = {
@@ -357,6 +358,66 @@ describe('Middleware', () => {
       expect(Middleware.joiValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
+    });
+
+  });
+
+  describe(`multer should`, () => {
+    const multer = (options) => {
+      return {
+        single: (documentFieldName) => {
+          return (req, res, next) => {
+            options.fileFilter(
+              {},
+              {
+                mimetype: 'image/png'
+              },
+              (error, valid = false) => {
+                if (error) {
+                  throw error;
+                }
+                if (valid) {
+                  next();
+                }
+              }
+            );
+          };
+        }
+      };
+    };
+    const multerMock = {
+      multer: multer
+    };
+    const req = {
+      body: {}
+    };
+    const res = {
+    };
+
+    it(`call multer with multerconfig properties uploadDirectory => dest and limits => limits`, () => {
+      const multerConfig = {
+        uploadDirectory: 'temp',
+        documentFieldName: 'fileDocument',
+        multerMethodName: 'single',
+        limits: {
+          fieldSize: 2000000,
+          fileSize: 100000000
+        },
+        allowedMimeTypes: [
+          `image/png`,
+          `image/gif`,
+          `image/jpeg`
+        ],
+      };
+      const expectedConfig = {
+        dest: multerConfig.uploadDirectory,
+        limits: multerConfig.limits
+      };
+      spyOn(multerMock, 'multer').and.callThrough();
+
+      middlewareMockContext.multer(req, res, methodProp.next, multerConfig);
+
+      expect(multerMock.multer).toHaveBeenCalledWith(jasmine.objectContaining(expectedConfig));
     });
 
   });

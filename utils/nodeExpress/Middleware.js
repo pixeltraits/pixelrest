@@ -19,7 +19,7 @@ export default class Middleware {
   static parseMulterBody(req, res, next) {
     const body = req.body;
 
-    if (body.length === 0) {
+    if (!body || body.length === 0) {
       next();
     }
 
@@ -87,20 +87,30 @@ export default class Middleware {
    * Multer middleware
    * @public
    * @method multer
-   * @return {void}
+   * @return {function}
    */
-  static multer(req, res, multerConfig) {
+  static multer(req, res, next, multerConfig) {
+    console.log(multer)
     const multerMiddleware = multer({
       dest: multerConfig.uploadDirectory,
       limits: multerConfig.limits,
-      fileFilter: (req, file, cb) => {
-        if (multerConfig.allowedMimeTypes.findIndex(allowedMimeType => allowedMimeType === file.mimetype) === -1) {
-          return cb(new Error(`Ce mime type n'est pas autorisé`));
-        }
-        return cb(null, true);
-      }
+      fileFilter: Middleware.controlMimeType(multerConfig)
     });
 
-    multerMiddleware[multerConfig.multerMethodName](multerConfig.documentFieldName);
+    return multerMiddleware[multerConfig.multerMethodName](multerConfig.documentFieldName);
+  }
+  /**
+   * Multer middleware
+   * @private
+   * @method multer
+   * @return {function}
+   */
+  controlMimeType(multerConfig) {
+    return (req, file, cb) => {
+      if (multerConfig.allowedMimeTypes.findIndex(allowedMimeType => allowedMimeType === file.mimetype) === -1) {
+        return cb(new Error(`Ce mime type n'est pas autorisé`));
+      }
+      return cb(null, true);
+    };
   }
 }
