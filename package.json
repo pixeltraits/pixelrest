@@ -1,8 +1,8 @@
 {
   "name": "node-rest",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "type": "module",
-  "description": "API REST exemple on node.js ",
+  "description": "API REST node.js",
   "private": false,
   "scripts": {
     "start": "nodemon ./main.js",
@@ -24,32 +24,31 @@
     "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
-    "eslint": "^7.22.0",
+    "eslint": "^7.23.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.1",
     "jasmine": "^3.7.0",
     "jasmine-console-reporter": "^3.1.0",
-    "jasmine-esm": "^0.3.1",
-    "server-destroy": "^1.0.1"
+    "jasmine-esm": "^0.3.1"
   },
   "exports": {
-    "./service": "./utils/nodeExpress/Service.js",
-    "./middleware": "./utils/nodeExpress/Middleware.js",
-    "./server": "./utils/nodeExpress/Server.js",
-    "./controller": "./utils/nodeExpress/Controller.js",
-    "./logger": "./utils/loggers/Logger.js",
-    "./httpResolver": "./utils/loggers/HttpResolver.js",
-    "./clone": "./utils/general/Clone.js",
-    "./collection": "./utils/general/Collection.js",
-    "./snakeToCamelParser": "./utils/general/SnakeToCamelParser.js",
-    "./repository": "./utils/database/Repository.js",
-    "./bddParser": "./utils/database/BddParser.js",
-    "./mysqlParser": "./utils/database/MysqlParser.js",
-    "./postgresParser": "./utils/database/PostgresParser.js",
-    "./auth": "./utils/authentication/Auth.js",
-    "./password": "./utils/authentication/Password.js"
+    "./service": "./src/nodeExpress/Service.js",
+    "./middleware": "./src/nodeExpress/Middleware.js",
+    "./server": "./src/nodeExpress/Server.js",
+    "./controller": "./src/nodeExpress/Controller.js",
+    "./logger": "./src/loggers/Logger.js",
+    "./httpResolver": "./src/loggers/HttpResolver.js",
+    "./clone": "./src/general/Clone.js",
+    "./collection": "./src/general/Collection.js",
+    "./snakeToCamelParser": "./src/general/SnakeToCamelParser.js",
+    "./repository": "./src/database/Repository.js",
+    "./bddParser": "./src/database/BddParser.js",
+    "./mysqlParser": "./src/database/MysqlParser.js",
+    "./postgresParser": "./src/database/PostgresParser.js",
+    "./auth": "./src/authentication/Auth.js",
+    "./password": "./src/authentication/Password.js"
   },
   "repository": {
     "type": "git",
