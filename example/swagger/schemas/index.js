@@ -1,5 +1,6 @@
 import { Login } from './connection.schemas.js';
 import { Token, User, UserToCreate, UserInformations, UserPassword } from './users.schemas.js';
+import { Document, DocumentToAdd } from './documents.schemas.js';
 
 export const SCHEMAS = {
   Login,
@@ -7,5 +8,7 @@ export const SCHEMAS = {
   User,
   UserToCreate,
   UserInformations,
-  UserPassword
+  UserPassword,
+  Document,
+  DocumentToAdd
 };

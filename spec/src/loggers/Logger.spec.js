@@ -14,11 +14,13 @@ describe('Logger', () => {
     const filePath = DEFAULT_LOG_CONFIG.LOG_FILE;
 
     it(`call info method of loglevel lib and call addLogToFile`, () => {
-      spyOn(logLevel, 'info').and.callThrough();
+      spyOn(logLevel, 'enableAll');
+      spyOn(logLevel, 'info');
       spyOn(Logger, 'addLogToFile');
 
       Logger.handleLog(log, filePath);
 
+      expect(logLevel.enableAll).toHaveBeenCalled();
       expect(logLevel.info).toHaveBeenCalledWith(log);
       expect(Logger.addLogToFile).toHaveBeenCalledWith(log, filePath);
     });
@@ -31,11 +33,13 @@ describe('Logger', () => {
     const filePath = DEFAULT_LOG_CONFIG.LOG_FILE;
 
     it(`call debug method of loglevel lib and call addLogToFile`, () => {
-      spyOn(logLevel, 'debug').and.callThrough();
+      spyOn(logLevel, 'enableAll');
+      spyOn(logLevel, 'debug');
       spyOn(Logger, 'addLogToFile');
 
       Logger.handleError(log, filePath);
 
+      expect(logLevel.enableAll).toHaveBeenCalled();
       expect(logLevel.debug).toHaveBeenCalledWith(log);
       expect(Logger.addLogToFile).toHaveBeenCalledWith(log, filePath);
     });
@@ -48,11 +52,13 @@ describe('Logger', () => {
     const filePath = DEFAULT_LOG_CONFIG.LOG_FILE;
 
     it(`call debug method of loglevel lib and call addLogToFile`, () => {
-      spyOn(logLevel, 'debug').and.callThrough();
+      spyOn(logLevel, 'enableAll');
+      spyOn(logLevel, 'debug');
       spyOn(Logger, 'addLogToFile');
 
       Logger.handleSQLError(log, filePath);
 
+      expect(logLevel.enableAll).toHaveBeenCalled();
       expect(logLevel.debug).toHaveBeenCalledWith(log);
       expect(Logger.addLogToFile).toHaveBeenCalledWith(log, filePath);
     });

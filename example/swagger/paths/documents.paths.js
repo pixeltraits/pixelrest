@@ -1,23 +1,26 @@
-const connection = {
+const add = {
   post: {
-    tags: ['users'],
-    summary: 'Login',
+    tags: ['documents'],
+    summary: 'Add document',
+    security: [{
+      bearerAuth: []
+    }],
     requestBody: {
       content: {
-        'application/json': {
+        'multipart/form-data': {
           schema: {
-            $ref: '#/components/schemas/Login'
+            $ref: '#/components/schemas/DocumentToAdd'
           }
         }
       }
     },
     responses: {
       200: {
-        description: 'OK',
+        description: 'Document added',
         content: {
           'application/json': {
             schema: {
-              $ref: '#/components/schemas/Token'
+              $ref: '#/components/schemas/Document'
             }
           }
         }
@@ -33,5 +36,5 @@ const connection = {
 };
 
 export default {
-  '/connexion': connection
+  '/documents': add
 };

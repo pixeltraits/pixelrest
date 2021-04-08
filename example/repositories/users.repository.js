@@ -4,7 +4,7 @@ import Logger from 'node-rest/logger';
 
 export default class UsersRepository extends Repository {
 
-  async createDataBase(user) {
+  async createTable(user) {
     try {
       await this.query(
         `
@@ -26,10 +26,10 @@ export default class UsersRepository extends Repository {
   }
 
   async add(user) {
-    let userAdded;
+    let userId;
 
     try {
-      userAdded = await this.query(
+      userId = await this.insertAndGetLastInsertId(
         `
           INSERT INTO users 
           VALUES (null, ~firstname, ~lastname, ~email, ~password, ~roles);
@@ -40,14 +40,14 @@ export default class UsersRepository extends Repository {
       Logger.handleSQLError(error);
     }
 
-    return userAdded;
+    return userId;
   }
 
-  async findAll() {
+  async getAll() {
     let users;
 
     try {
-      users = await this.query(
+      users = await this.any(
         `
           SELECT id, firstname, lastname, email, roles 
           FROM users
@@ -61,11 +61,11 @@ export default class UsersRepository extends Repository {
     return users;
   }
 
-  async findById(id) {
+  async getById(id) {
     let user;
 
     try {
-      user = await this.query(
+      user = await this.one(
         `
           SELECT id, firstname, lastname, email, roles
           FROM users
@@ -82,11 +82,11 @@ export default class UsersRepository extends Repository {
     return user;
   }
 
-  async findByMail(email) {
+  async getByMail(email) {
     let user;
 
     try {
-      user = await this.query(
+      user = await this.one(
         `
           SELECT id, roles, firstname, lastname, email
           FROM users
@@ -103,11 +103,11 @@ export default class UsersRepository extends Repository {
     return user;
   }
 
-  async findByMailWithPassword(email) {
+  async getByMailWithPassword(email) {
     let user;
 
     try {
-      user = await this.query(
+      user = await this.one(
         `
           SELECT id, roles, firstname, lastname, email, password
           FROM users
@@ -121,14 +121,14 @@ export default class UsersRepository extends Repository {
       Logger.handleSQLError(error);
     }
 
-    return user[0];
+    return user;
   }
 
-  async findPasswordById(id) {
+  async getPasswordById(id) {
     let password;
 
     try {
-      password = await this.query(
+      password = await this.one(
         `
           SELECT password
           FROM users
@@ -146,43 +146,33 @@ export default class UsersRepository extends Repository {
   }
 
   async updateInformations(user) {
-    let updatedUser;
-
     try {
-      updatedUser = await this.query(
+      await this.one(
         `
           UPDATE users 
           SET lastname = ~lastname, firstname = ~firstname, email = ~email 
           WHERE id = ~id;
-          SELECT LAST_INSERT_ID();
         `,
         user
       );
     } catch (error) {
       Logger.handleSQLError(error);
     }
-
-    return updatedUser;
   }
 
   async updatePassword(user) {
-    let userId;
-
     try {
-      userId = await this.query(
+      await this.one(
         `
           UPDATE users 
           SET password = ~password
           WHERE id = ~id;
-          SELECT LAST_INSERT_ID();
         `,
         user
       );
     } catch (error) {
       Logger.handleSQLError(error);
     }
-
-    return userId;
   }
 
 }

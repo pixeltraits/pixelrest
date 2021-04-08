@@ -40,7 +40,7 @@ export default class Collection {
   }
   /**
    * filterByField
-   * get array of fields
+   * getAll array of fields
    * @public
    * @method filterByField
    * @param {array<object>} collection - object list

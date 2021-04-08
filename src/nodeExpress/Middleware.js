@@ -21,6 +21,7 @@ export default class Middleware {
 
     if (!body || body.length === 0) {
       next();
+      return;
     }
 
     Object.keys(req.body).forEach(bodyProperty => {
@@ -99,8 +100,9 @@ export default class Middleware {
       limits: multerConfig.limits,
       fileFilter: Middleware.controlMimeType(multerConfig)
     });
+    const multerFunctionMiddleware = multerMiddleware[multerConfig.multerMethodName](multerConfig.documentFieldName);
 
-    return multerMiddleware[multerConfig.multerMethodName](multerConfig.documentFieldName);
+    return multerFunctionMiddleware(req, res, next);
   }
   /**
    * controlMimeType for multer

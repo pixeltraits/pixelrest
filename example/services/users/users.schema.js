@@ -1,8 +1,8 @@
 import Joi from 'joi';
 
 
-export const getUserSchema = {
-  query: Joi.object().keys({
+export const getByIdSchema = {
+  params: Joi.object().keys({
     id: Joi.number().integer().required()
   })
 };
@@ -24,7 +24,7 @@ export const updatePasswordSchema = {
   })
 };
 
-export const postUserSchema = {
+export const addSchema = {
   body: Joi.object().keys({
     firstname: Joi.string().required().max(50),
     lastname: Joi.string().required().max(50),
