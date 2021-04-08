@@ -50,6 +50,9 @@ const findCurrent = {
           }
         }
       },
+      401: {
+        description: 'Unauthorized'
+      },
       500: {
         description: 'Unexpected error'
       }
@@ -109,8 +112,15 @@ const create = {
       }
     },
     responses: {
-      201: {
-        description: 'Created'
+      200: {
+        description: 'User added',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/User'
+            }
+          }
+        }
       },
       401: {
         description: 'Unauthorized'
@@ -125,7 +135,7 @@ const create = {
 const updateInformations = {
   put: {
     tags: ['users'],
-    summary: 'Update user',
+    summary: 'Update user informations',
     security: [{
       bearerAuth: []
     }],
@@ -177,14 +187,7 @@ const updatePassword = {
     },
     responses: {
       200: {
-        description: 'Un utilisateur mis à jour',
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/UserStatus'
-            }
-          }
-        }
+        description: 'Un utilisateur mis à jour'
       },
       401: {
         description: 'Unauthorized'

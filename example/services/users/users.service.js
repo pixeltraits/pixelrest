@@ -1,25 +1,23 @@
-import Auth from 'node-rest/auth';
 import HttpResolver from 'node-rest/httpResolver';
 import Service from 'node-rest/service';
 import Password from 'node-rest/password';
 
-import { JWT } from '../../config/secret.js';
 import { ROLES } from '../../config/roles.js';
 import {
-  getUserSchema,
-  postUserSchema,
+  getByIdSchema,
+  addSchema,
   updateInformationsSchema,
   updatePasswordSchema
-} from './user.schema.js';
+} from './users.schema.js';
 
 
-export default class UserService extends Service {
+export default class UsersService extends Service {
 
   initRoute() {
     this.routesConfig = [
       {
         route: '/users',
-        execute: 'get',
+        execute: 'getAll',
         method: this.HTTP_METHODS.GET,
         schema: null,
         roles: [ROLES.ADMIN]
@@ -35,14 +33,14 @@ export default class UserService extends Service {
         route: '/users/:id',
         execute: 'getById',
         method: this.HTTP_METHODS.GET,
-        schema: getUserSchema,
+        schema: getByIdSchema,
         roles: [ROLES.ADMIN]
       },
       {
         route: '/users',
-        execute: 'post',
+        execute: 'add',
         method: this.HTTP_METHODS.POST,
-        schema: postUserSchema,
+        schema: addSchema,
         roles: [ROLES.PUBLIC]
       },
       {
@@ -62,47 +60,46 @@ export default class UserService extends Service {
     ];
   }
 
-  async get(req, res) {
+  async getAll(req, res) {
     try {
-      const users = await this.db.users.findAll();
+      const users = await this.repositories.users.getAll();
       res.send(users);
     } catch (error) {
       HttpResolver.handle(
         error,
-        `UserService#get`,
+        `UsersService#getAll`,
         res
       );
     }
   }
 
   async getCurrent(req, res) {
-    const token = Auth.verify(req.headers.authorization, JWT.SECRET);
-
-    if (!token || !token.id) {
-      return HttpResolver.handle(
-        new Error(`Invalid token - missing id`),
-        `UserService#getCurrent`,
-        res
-      );
-    }
-
-    return this.getById(req, res, token.id);
-  }
-
-  async getById(req, res) {
     try {
-      const user = await this.db.users.findById(req.params.id);
+      const user = await this.repositories.users.getById(this.tokenData.id);
       res.send(user);
     } catch (error) {
       HttpResolver.handle(
         error,
-        `UserService#getEvenementById`,
+        `UsersService#getCurrent`,
         res
       );
     }
   }
 
-  async post(req, res) {
+  async getById(req, res) {
+    try {
+      const user = await this.repositories.users.getById(req.params.id);
+      res.send(user);
+    } catch (error) {
+      HttpResolver.handle(
+        error,
+        `UsersService#getById`,
+        res
+      );
+    }
+  }
+
+  async add(req, res) {
     try {
       const userSend = {
         firstname: req.body.firstname,
@@ -111,59 +108,57 @@ export default class UserService extends Service {
         password: await Password.hash(req.body.password),
         roles: req.body.roles
       };
-      await this.db.users.add(userSend);
-      const savedUser = await this.db.users.findByMail(userSend.email);
+      const userId = await this.repositories.users.add(userSend);
+      const savedUser = await this.repositories.users.getById(userId);
 
       res.send(savedUser);
     } catch (error) {
       HttpResolver.handle(
         error,
-        `UserService#post`,
+        `UsersService#add`,
         res
       );
     }
   }
 
   async updateInformations(req, res) {
-    const user = {
-      id: req.body.id,
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      email: req.body.email
-    };
-
     try {
-      const updatedUserId = await this.db.users.updateInformations(user);
-      const updatedUser = await this.db.users.findById(updatedUserId);
+      const user = {
+        id: req.body.id,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email
+      };
+      await this.repositories.users.updateInformations(user);
+      const updatedUser = await this.repositories.users.getById(user.id);
 
       res.send(updatedUser);
     } catch (error) {
       HttpResolver.handle(
         error,
-        `UserService#updateInformations`,
+        `UsersService#updateInformations`,
         res
       );
     }
   }
 
   async updatePassword(req, res) {
-    const sendUser = {
-      id: req.body.id,
-      password: req.body.oldPassword,
-      newPassword: req.body.password
-    };
-
     try {
-      const actualUser = await this.db.users.findPasswordById(sendUser.id);
+      const sendUser = {
+        id: req.body.id,
+        password: req.body.oldPassword,
+        newPassword: req.body.password
+      };
+      const actualUser = await this.repositories.users.getPasswordById(sendUser.id);
 
       if (await Password.validate(sendUser.password, actualUser.password)) {
-        await this.db.users.updatePassword({
+        await this.repositories.users.updatePassword({
           id: sendUser.id,
           password: await Password.hash(sendUser.newPassword)
         });
       } else {
         return HttpResolver.unauthorized(
-          `ConnexionService#verifyPassword`,
+          `UsersService#updatePassword`,
           `passwords parse not match`,
           res
         );
@@ -173,7 +168,7 @@ export default class UserService extends Service {
     } catch (error) {
       return HttpResolver.handle(
         error,
-        `UserService#updatePassword`,
+        `UsersService#updatePassword`,
         res
       );
     }

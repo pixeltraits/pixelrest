@@ -149,10 +149,10 @@ describe('Service', () => {
       }).toThrow(error);
     });
 
-    it(`set tokenData when request contains a valid token`, () => {
+    it(`set tokenData when request contains a valid token`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
 
-      service.router.handle(reqMock, resMock, () => {});
+      await service.router.handle(reqMock, resMock, () => {});
 
       expect(service.tokenData).toEqual(jasmine.objectContaining(tokenData));
     });

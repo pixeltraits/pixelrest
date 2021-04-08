@@ -108,20 +108,21 @@ export default class Service {
 
     if (Auth.hasPublicRole(authorizedRoles)) {
       next();
+      return;
     }
 
     if (!token) {
-      Service.sendEmptyTokenError(res);
+      return Service.sendEmptyTokenError(res);
     }
 
     try {
       this.tokenData = Auth.verify(token, this.tokenSecret);
     } catch (error) {
-      Service.sendTokenError(res, error);
+      return Service.sendTokenError(res, error);
     }
 
     if (!Auth.checkMultiRoles(authorizedRoles, this.tokenData.roles)) {
-      Service.sendRoleError(res);
+      return Service.sendRoleError(res);
     }
 
     next();

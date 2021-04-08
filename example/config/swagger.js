@@ -4,11 +4,11 @@ import { TAGS } from '../swagger/tags.js';
 
 
 export const SWAGGER_CONFIG = {
-  openapi: '3.0.0',
+  openapi: '3.0.3',
   info: {
     title: 'Swagger node-rest',
-    description: 'Documentation de l\'API REST',
-    version: '1.0.0'
+    description: 'REST API Documentation',
+    version: '0.9.0'
   },
   tags: TAGS,
   paths: PATHS,

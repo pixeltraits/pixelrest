@@ -56,7 +56,7 @@ export default class App {
     const repositoryKeys = Object.keys(REPOSITORIES);
 
     repositoryKeys.forEach(repositoryKey => {
-      this.repositories[repositoryKey] = new REPOSITORIES[repositoryKey](mysqlConnection, MysqlParser);
+      this.repositories[repositoryKey] = new REPOSITORIES[repositoryKey](mysqlConnection, new MysqlParser());
     });
   }
 

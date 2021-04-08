@@ -5,7 +5,7 @@ import { getMysqlConnection } from './example/config/mysqlDb.js';
 
 async function main() {
   const mysqlConnection = await getMysqlConnection();
-  const app = new App(mysqlConnection, SERVER);
+  new App(mysqlConnection, SERVER);
 }
 
 main();

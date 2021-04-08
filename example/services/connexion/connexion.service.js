@@ -29,7 +29,7 @@ export default class ConnexionService extends Service {
     };
 
     try {
-      const user = await this.db.users.findByMailWithPassword(login.email);
+      const user = await this.repositories.users.getByMailWithPassword(login.email);
 
       if (!await Password.validate(login.password, user.password)) {
         return HttpResolver.unauthorized(
@@ -41,7 +41,7 @@ export default class ConnexionService extends Service {
 
       const token = Auth.sign(
         {
-          roles: [user.role],
+          roles: [user.roles],
           id: user.id
         },
         JWT.SECRET,

@@ -20,6 +20,7 @@ export default class Logger {
    * @return {void}
    */
   static async handleLog(log, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    logLevel.enableAll();
     logLevel.info(log);
     await Logger.addLogToFile(log, logFilePath);
   }
@@ -32,6 +33,7 @@ export default class Logger {
    * @return {void}
    */
   static async handleError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    logLevel.enableAll();
     logLevel.debug(error);
     await Logger.addLogToFile(error, logFilePath);
   }
@@ -44,6 +46,7 @@ export default class Logger {
    * @return {void}
    */
   static async handleSQLError(error, logFilePath = DEFAULT_LOG_CONFIG.LOG_FILE) {
+    logLevel.enableAll();
     logLevel.debug(error);
     await Logger.addLogToFile(error, logFilePath);
   }
