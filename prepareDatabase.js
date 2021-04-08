@@ -1,5 +1,5 @@
-import { getMysqlConnection } from './app/config/mysqlDb.js';
-import usersRepository from './app/repositories/users.repository.js';
+import { getMysqlConnection } from './example/config/mysqlDb.js';
+import usersRepository from './example/repositories/users.repository.js';
 import MysqlParser from 'node-rest/mysqlParser';
 
 
