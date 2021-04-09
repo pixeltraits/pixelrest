@@ -1,33 +1,34 @@
-# pixelrest
-API REST exemple on node.js
+# Pixelrest
+Make API REST on node.js
 
+# Get started
+Install pixelrest with npm : <br>
+`npm install --save pixelrest` <br><br>
+Generate a project pixelrest : <br>
+`pixelrest-new` <br><br>
+Create file secret.js in `app/config` with the credentials.<br><br>
+Secret.js file example:<br>
 
-# SECURITE
-Ne jamais mettre les credentials sur le git.
-
-# Credentials
-Il est nécessaire de créer un fichier de configuration pour
-dbCredentials.js dans le dossier config.
-Le fichier doit contenir les données suivantes:
-
-const DB_CREDENTIALS = {
-  DATABASE: '',
-  HOST: '',
-  PORT: 5432,
-  USERNAME: '',
-  PASSWORD: ''
+```
+export const DB_CREDENTIALS = {
+  DATABASE: 'mydatabase',
+  HOST: 'localhost',
+  PORT: 3306,
+  USERNAME: 'root',
+  PASSWORD: 'password'
 };
 
-module.exports = DB_CREDENTIALS;
-
-Un autre fichier pour configurer json web token.
-Vous devez créer dans le dossier config un fichier jwt.js contenant:
-
-const JWT = {
-  SECRET: '',
+export const JWT = {
+  SECRET: 'mysecret',
   EXPIRES_IN: 14400
 };
+```
 
-module.exports = JWT;
+Start your server : <br>
+`nodemon ./app/main.js` <br>
 
-Ces fichier sont renseignés dans le gitignore par sécurité.
+Test your API REST with swagger : <br>
+`http://localhost:1338/api-docs` <br>
+
+# SECURITY
+Never push secret.js on your git.
