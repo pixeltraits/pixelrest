@@ -33,8 +33,8 @@ export default class ConnexionService extends Service {
 
       if (!await Password.validate(login.password, user.password)) {
         return HttpResolver.unauthorized(
-          `ConnexionController#verifyPassword - passwords parse not match`,
-          `passwords parse not match`,
+          `ConnexionController#verifyPassword - wrong login`,
+          `wrong login`,
           res
         );
       }
@@ -50,7 +50,7 @@ export default class ConnexionService extends Service {
 
       return res.send({ token: token });
     } catch (error) {
-      return HttpResolver.handle(error, `ConnexionService#post`, res);
+      return HttpResolver.handle(error, `ConnexionService#connexion`, res);
     }
   }
 
