@@ -5,8 +5,8 @@
   "description": "API REST node.js",
   "private": false,
   "scripts": {
-    "start": "nodemon ./main.js",
-    "prepare": "node ./example/scripts/prepareDatabase.js",
+    "start": "nodemon ./example/main.js",
+    "prepare": "node ./example/app/scripts/prepareDatabase.js",
     "test": "jasmineEsm",
     "lint": "eslint ."
   },
