@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import Controller from 'node-rest/controller';
+import Controller from 'pixelrest/controller';
 
 
 describe('Controller', () => {

@@ -1,6 +1,6 @@
-import HttpResolver from 'node-rest/httpResolver';
-import Service from 'node-rest/service';
-import Password from 'node-rest/password';
+import HttpResolver from 'pixelrest/httpResolver';
+import Service from 'pixelrest/service';
+import Password from 'pixelrest/password';
 
 import { ROLES } from '../../config/roles.js';
 import {

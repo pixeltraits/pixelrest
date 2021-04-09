@@ -2,7 +2,7 @@ process.env.NODE_ENV = 'test';
 import fsPromises from 'fs/promises';
 import logLevel from 'loglevel';
 
-import Logger from 'node-rest/logger';
+import Logger from 'pixelrest/logger';
 import { DEFAULT_LOG_CONFIG } from "../../../src/loggers/logger.config.js";
 
 

@@ -1,4 +1,4 @@
-# node-rest
+# pixelrest
 API REST exemple on node.js
 
 

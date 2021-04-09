@@ -1,7 +1,7 @@
-import Auth from 'node-rest/auth';
-import HttpResolver from 'node-rest/httpResolver';
-import Service from 'node-rest/service';
-import Password from 'node-rest/password';
+import Auth from 'pixelrest/auth';
+import HttpResolver from 'pixelrest/httpResolver';
+import Service from 'pixelrest/service';
+import Password from 'pixelrest/password';
 
 import { JWT } from '../../config/secret.js';
 import { ROLES } from '../../config/roles.js';

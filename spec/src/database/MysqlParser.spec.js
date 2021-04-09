@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import MysqlParser from 'node-rest/mysqlParser';
+import MysqlParser from 'pixelrest/mysqlParser';
 
 
 describe('MysqlParser', () => {

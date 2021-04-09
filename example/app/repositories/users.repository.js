@@ -1,5 +1,5 @@
-import Repository from 'node-rest/repository';
-import Logger from 'node-rest/logger';
+import Repository from 'pixelrest/repository';
+import Logger from 'pixelrest/logger';
 
 
 export default class UsersRepository extends Repository {

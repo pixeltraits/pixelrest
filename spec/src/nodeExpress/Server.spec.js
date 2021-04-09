@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
 import nodemon from "nodemon";
-import Server from 'node-rest/server';
-import Logger from 'node-rest/logger';
+import Server from 'pixelrest/server';
+import Logger from 'pixelrest/logger';
 import { SERVER_ERROR_CODES } from "../../../src/nodeExpress/server-errors.config.js";
 
 

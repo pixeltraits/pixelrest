@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
-import Auth from 'node-rest/auth';
-import Middleware from 'node-rest/middleware';
-import HttpResolver from 'node-rest/httpResolver';
+import Auth from 'pixelrest/auth';
+import Middleware from 'pixelrest/middleware';
+import HttpResolver from 'pixelrest/httpResolver';
 import ServiceAbstractClassMock from '../../mocks/ServiceAbstractClassMock.js';
 import ServiceErrorMock from '../../mocks/ServiceErrorMock.js';
 import { getListByIdSchema } from "../../mocks/service-mock.schema.js";
