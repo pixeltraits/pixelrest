@@ -2,7 +2,7 @@ process.env.NODE_ENV = 'test';
 import Auth from 'node-rest/auth';
 import jwt from 'jsonwebtoken';
 
-import { ROLES } from "../../../example/config/roles.js";
+import { ROLES } from "../../../src/authentication/auth.config.js";
 
 
 describe('Auth', () => {
