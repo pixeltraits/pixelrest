@@ -1,5 +1,5 @@
 import multer from "multer";
-import HttpResolver from 'node-rest/httpResolver';
+import HttpResolver from 'pixelrest/httpResolver';
 
 import { SERVICE_ERRORS } from './service-errors.config.js';
 

@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import Collection from 'node-rest/collection';
+import Collection from 'pixelrest/collection';
 
 
 describe('Collection', () => {

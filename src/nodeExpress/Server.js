@@ -1,6 +1,6 @@
 import nodemon from 'nodemon';
 
-import Logger from 'node-rest/logger';
+import Logger from 'pixelrest/logger';
 import { SERVER_STRINGS, SERVER_ERROR_CODES } from './server-errors.config.js';
 
 /**

@@ -1,8 +1,8 @@
 import express from 'express';
 
-import Auth from 'node-rest/auth';
-import Middleware from 'node-rest/middleware';
-import HttpResolver from 'node-rest/httpResolver';
+import Auth from 'pixelrest/auth';
+import Middleware from 'pixelrest/middleware';
+import HttpResolver from 'pixelrest/httpResolver';
 
 import { HTTP_METHODS } from './http-methods.config.js';
 import { SERVICE_ERRORS, TOKEN_ERROR_CODES } from './service-errors.config.js';

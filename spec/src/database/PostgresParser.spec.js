@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import PostgresParser from 'node-rest/postgresParser';
+import PostgresParser from 'pixelrest/postgresParser';
 
 
 describe('PostgresParser', () => {

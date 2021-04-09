@@ -1,4 +1,4 @@
-import Logger from 'node-rest/logger';
+import Logger from 'pixelrest/logger';
 
 import {
   HTTP_ERRORS,

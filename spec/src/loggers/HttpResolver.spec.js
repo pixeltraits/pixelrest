@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
-import HttpResolver from 'node-rest/httpResolver';
-import Logger from 'node-rest/logger';
+import HttpResolver from 'pixelrest/httpResolver';
+import Logger from 'pixelrest/logger';
 
 import {DEFAULT_LOG_CONFIG, HTTP_ERRORS, SQL_ERROR_CODES} from "../../../src/loggers/logger.config.js";
 import { HTTP_CODES } from "../../../src/loggers/logger.config.js";

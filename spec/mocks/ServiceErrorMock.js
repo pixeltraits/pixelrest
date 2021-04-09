@@ -1,4 +1,4 @@
-import Service from 'node-rest/service';
+import Service from 'pixelrest/service';
 
 
 export default class ServiceErrorMock extends Service {

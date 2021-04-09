@@ -2,9 +2,9 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import morgan from 'morgan';
 
-import Logger from 'node-rest/logger';
-import Server from 'node-rest/server';
-import MysqlParser from 'node-rest/mysqlParser';
+import Logger from 'pixelrest/logger';
+import Server from 'pixelrest/server';
+import MysqlParser from 'pixelrest/mysqlParser';
 
 import { JWT } from './config/secret.js';
 import { REPOSITORIES } from './repositories/index.js';

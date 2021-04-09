@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import SnakeToCamelParser from 'node-rest/snakeToCamelParser';
+import SnakeToCamelParser from 'pixelrest/snakeToCamelParser';
 
 
 describe('SnakeToCamelParser', () => {

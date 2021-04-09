@@ -2,8 +2,8 @@ process.env.NODE_ENV = 'test';
 import Joi from "joi";
 import multer from "multer";
 
-import Middleware from 'node-rest/middleware';
-import HttpResolver from 'node-rest/httpResolver';
+import Middleware from 'pixelrest/middleware';
+import HttpResolver from 'pixelrest/httpResolver';
 import { SERVICE_ERRORS } from "../../../src/nodeExpress/service-errors.config.js";
 
 

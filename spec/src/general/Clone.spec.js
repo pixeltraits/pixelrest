@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import Clone from 'node-rest/clone';
+import Clone from 'pixelrest/clone';
 
 
 describe('Clone', () => {

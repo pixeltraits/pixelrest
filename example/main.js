@@ -1,6 +1,6 @@
-import App from './example/App.js';
-import { SERVER } from './example/config/server.js';
-import { getMysqlConnection } from './example/config/mysqlDb.js';
+import App from './app/App.js';
+import { SERVER } from './app/config/server.js';
+import { getMysqlConnection } from './app/config/mysqlDb.js';
 
 
 async function main() {

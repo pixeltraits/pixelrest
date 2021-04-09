@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
 import bcrypt from 'bcrypt';
 
-import Password from 'node-rest/password';
+import Password from 'pixelrest/password';
 
 
 describe('Password', () => {

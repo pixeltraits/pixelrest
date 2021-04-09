@@ -1,4 +1,4 @@
-import BddParser from 'node-rest/bddParser';
+import BddParser from 'pixelrest/bddParser';
 
 
 export default class BddParserAbstractClassMock extends BddParser {

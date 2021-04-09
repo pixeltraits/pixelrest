@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-import Auth from 'node-rest/auth';
+import Auth from 'pixelrest/auth';
 import jwt from 'jsonwebtoken';
 
 import { ROLES } from "../../../src/authentication/auth.config.js";
