@@ -159,7 +159,7 @@ export default class UsersService extends Service {
       } else {
         return HttpResolver.unauthorized(
           `UsersService#updatePassword`,
-          `passwords parse not match`,
+          `passwords not match`,
           res
         );
       }
