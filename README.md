@@ -6,7 +6,8 @@ Install pixelrest with npm : <br>
 `npm install --save pixelrest` <br><br>
 Generate a project pixelrest : <br>
 `pixelrest-new` <br><br>
-Create file secret.js in `app/config` with the credentials.<br><br>
+You should make a mysql/mariadb database(InnoDB)<br><br>
+Create file secret.js in `app/config` with your mysql server and database credentials.<br>
 Secret.js file example:<br>
 
 ```
@@ -23,6 +24,8 @@ export const JWT = {
   EXPIRES_IN: 14400
 };
 ```
+Prepare your database with the script prepareDatabase :<br>
+`node ./app/scripts/prepareDatabase.js` <br>
 
 Start your server : <br>
 `nodemon ./app/main.js` <br>
@@ -31,4 +34,4 @@ Test your API REST with swagger : <br>
 `http://localhost:1338/api-docs` <br>
 
 # SECURITY
-Never push secret.js on your git.
+Never push secret.js on your git. You should add it to your gitignore!
