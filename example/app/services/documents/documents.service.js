@@ -46,7 +46,7 @@ export default class DocumentsService extends Service {
       documentInformations.id = await this.repositories.documents.add(documentInformations);
       documentInformations.filename = Document.getDocumentFileNewName(req.file, documentInformations.id);
       await this.repositories.documents.updateInformations(documentInformations);
-      fsPromises.rename(req.file.path, `${SERVER.URL_DOCUMENTS}${documentInformations.filename}`);
+      await fsPromises.rename(req.file.path, `${SERVER.URL_DOCUMENTS}${documentInformations.filename}`);
       const addedDocument = await this.repositories.documents.getById(documentInformations.id);
 
       res.send(addedDocument);
