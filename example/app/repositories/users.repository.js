@@ -6,7 +6,7 @@ export default class UsersRepository extends Repository {
 
   async createTable(user) {
     try {
-      await this.query(
+      await this.any(
         `
           CREATE TABLE users
           (
