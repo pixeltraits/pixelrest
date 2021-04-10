@@ -6,6 +6,8 @@ Install pixelrest with npm : <br>
 `npm install --save pixelrest` <br><br>
 Generate a project pixelrest : <br>
 `pixelrest-new` <br><br>
+Set your node projet in ES module mode, add following property to your json file :<br>
+`"type": "module"`<br><br>
 You should make a mysql/mariadb database(InnoDB)<br><br>
 Create file secret.js in `app/config` with your mysql server and database credentials.<br>
 Secret.js file example:<br>
@@ -28,7 +30,7 @@ Prepare your database with the script prepareDatabase :<br>
 `node ./app/scripts/prepareDatabase.js` <br>
 
 Start your server : <br>
-`nodemon ./app/main.js` <br>
+`nodemon ./main.js` <br>
 
 Test your API REST with swagger : <br>
 `http://localhost:1338/api-docs` <br>

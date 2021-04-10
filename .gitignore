@@ -2,8 +2,8 @@
 secret.js
 
 # Logs
-temp
-documents
+./temp
+./documents
 logs
 *.log
 npm-debug.log*
