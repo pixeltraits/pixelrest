@@ -1,7 +1,7 @@
 import fsPromises from 'fs/promises';
 
-import HttpResolver from 'node-rest/httpResolver';
-import Service from 'node-rest/service';
+import HttpResolver from 'pixelrest/httpResolver';
+import Service from 'pixelrest/service';
 
 import Document from "../../utils/Document.js";
 import { ROLES } from '../../config/roles.js';
