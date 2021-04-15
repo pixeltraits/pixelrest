@@ -35,7 +35,7 @@ Start your server : <br>
 Test your API REST with swagger : <br>
 `http://localhost:1338/api-docs` <br>
 
-Before test documents service, don't forget to create documents directory in your projet
+Before testing documents service, don't forget to create documents directory in your projet
 
 # SECURITY
 Never push secret.js on your git. You should add it to your gitignore!
