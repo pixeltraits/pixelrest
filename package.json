@@ -6,7 +6,7 @@
   "private": false,
   "scripts": {
     "start": "nodemon ./example/main.js",
-    "prepare": "node ./example/app/scripts/prepareDatabase.js",
+    "prepare-file": "node ./example/app/scripts/prepareDatabase.js",
     "test": "jasmine",
     "lint": "eslint ."
   },
