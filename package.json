@@ -1,43 +1,42 @@
 {
   "name": "pixelrest",
-  "version": "0.9.8",
+  "version": "1.0.0",
   "type": "module",
   "description": "API REST node.js",
   "private": false,
   "scripts": {
     "start": "nodemon ./example/main.js",
     "prepare": "node ./example/app/scripts/prepareDatabase.js",
-    "test": "jasmineEsm",
+    "test": "jasmine",
     "lint": "eslint ."
   },
   "bin": {
     "pixelrest-new": "bin/generate-project.js"
   },
   "dependencies": {
-    "bcrypt": "^5.0.1",
-    "camelcase": "^6.2.0",
-    "express": "^4.17.1",
-    "fs-extra": "^9.1.0",
-    "joi": "^17.4.0",
-    "json": "^10.0.0",
-    "jsonwebtoken": "^8.5.1",
-    "loglevel": "^1.7.1",
+    "bcrypt": "^5.1.0",
+    "camelcase": "^7.0.1",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.0",
+    "joi": "^17.7.0",
+    "json": "^11.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "loglevel": "^1.8.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
-    "mysql2": "^2.2.5",
-    "nodemon": "^2.0.7",
-    "pg-promise": "^10.9.5",
-    "swagger-ui-express": "^4.1.6"
+    "nodemon": "^2.0.20",
+    "swagger-ui-express": "^4.6.0",
+    "mysql2": "^3.1.2",
+    "pg-promise": "^11.2.0"
   },
   "devDependencies": {
-    "eslint": "^7.23.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.23.1",
-    "jasmine": "^3.7.0",
-    "jasmine-console-reporter": "^3.1.0",
-    "jasmine-esm": "^0.3.1"
+    "eslint": "^8.33.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "jasmine": "^4.5.0",
+    "jasmine-console-reporter": "^3.1.0"
   },
   "exports": {
     "./service": "./src/nodeExpress/Service.js",
