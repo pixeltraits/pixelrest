@@ -72,8 +72,8 @@ describe('Logger', () => {
     const finalContentFile = `Old logs, Test error sql log`;
 
     it(`add logs for the first time without directory`, async () => {
-      const dirPath = new URL(`../../fileCreationTest/testDir`, import.meta.url);
-      const filePath = new URL(`../../fileCreationTest/testDir/serverLog.log`, import.meta.url);
+      const dirPath = new URL(`../../testDir`, import.meta.url);
+      const filePath = new URL(`../../testDir/serverLog.log`, import.meta.url);
 
       try {
         await Logger.addLogToFile(newLogs, filePath);
@@ -89,8 +89,8 @@ describe('Logger', () => {
     });
 
     it(`add logs for the first time with directory`, async () => {
-      const dirPath = new URL(`../../fileCreationTest/testDir2`, import.meta.url);
-      const filePath = new URL(`../../fileCreationTest/testDir2/serverLog.log`, import.meta.url);
+      const dirPath = new URL(`../../testDir2`, import.meta.url);
+      const filePath = new URL(`../../testDir2/serverLog.log`, import.meta.url);
 
       try {
         await fsPromises.mkdir(dirPath);
@@ -108,8 +108,8 @@ describe('Logger', () => {
     });
 
     it(`add newLogs to file`, async () => {
-      const dirPath = new URL(`../../fileCreationTest/testDir3`, import.meta.url);
-      const filePath = new URL(`../../fileCreationTest/testDir3/serverLog.log`, import.meta.url);
+      const dirPath = new URL(`../../testDir3`, import.meta.url);
+      const filePath = new URL(`../../testDir3/serverLog.log`, import.meta.url);
 
       try {
         await fsPromises.mkdir(dirPath);
