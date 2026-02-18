@@ -1,5 +1,3 @@
-import nodemon from 'nodemon';
-
 import Logger from 'pixelrest/logger';
 import { SERVER_STRINGS, SERVER_ERROR_CODES } from './server-errors.config.js';
 
@@ -17,14 +15,7 @@ export default class Server {
   static onError(error, port) {
     if (error.code === SERVER_ERROR_CODES.PORT_ALREADY_IN_USE) {
       Logger.handleError(`${SERVER_STRINGS.PORT}${port}${SERVER_STRINGS.ALREADY_IN_USE}`);
-
-      nodemon.once(
-        'exit',
-        () => {
-          process.exit();
-        }
-      ).emit('quit');
-
+      process.exit(1);
       return;
     }
 

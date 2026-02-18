@@ -3,7 +3,8 @@ export const HTTP_ERRORS = {
   CONTENT_ALREADY_EXISTS: `The content already exists`,
   UNAUTHORIZED: `Wrong login`,
   BAD_REQUEST: `Bad request`,
-  NO_CONTENT: `No content`
+  NO_CONTENT: `No content`,
+  UNAVAILABLE: `Service unavailable`
 };
 
 export const LOGGER_ERRORS = {
@@ -22,10 +23,16 @@ export const SQL_ERROR_CODES = {
 export const HTTP_CODES = {
   NO_CONTENT: 204,
   BAD_REQUEST: 400,
-  TOKEN_EXPIRED: 4012,
   UNAUTHORIZED: 401,
   UNAVAILABLE: 503,
   ALREADY_EXIST: 409
+};
+
+export const ERROR_TYPES = {
+  NO_CONTENT: `NO_CONTENT`,
+  UNAUTHORIZED: `UNAUTHORIZED`,
+  TOKEN_EXPIRED: `TOKEN_EXPIRED`,
+  ALREADY_EXIST: `ALREADY_EXIST`
 };
 
 export const DEFAULT_LOG_CONFIG = {

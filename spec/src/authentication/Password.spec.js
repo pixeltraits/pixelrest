@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect } from 'vitest';
 import bcrypt from 'bcrypt';
 
 import Password from 'pixelrest/password';

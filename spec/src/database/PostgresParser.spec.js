@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect } from 'vitest';
 import PostgresParser from 'pixelrest/postgresParser';
 
 
@@ -8,29 +8,33 @@ describe('PostgresParser', () => {
 
   describe('parse should', () => {
 
-    it('if there is no parameters remove line break and useless spaces', () => {
+    it('if there is no parameters remove line break and useless spaces and return object with empty parameters', () => {
       const request = `
-        SELECT * 
+        SELECT *
         FROM test;
       `;
       const expectedRequest = 'SELECT * FROM test;';
+      const parameters = {};
 
-      const formatedRequest = postgresParser.parse(request);
+      const formatedObject = postgresParser.parse(request, parameters);
 
-      expect(expectedRequest).toEqual(formatedRequest);
+      expect(formatedObject.sqlRequest).toEqual(expectedRequest);
+      expect(formatedObject.sqlParameters).toEqual({});
     });
 
-    it('if there is parameters remove line break and useless spaces and change params identifier', () => {
+    it('if there is parameters remove line break and useless spaces, change params identifier and return parameters', () => {
       const request = `
-        SELECT * 
-        FROM test 
+        SELECT *
+        FROM test
         WHERE id=~id;
       `;
       const expectedRequest = 'SELECT * FROM test WHERE id=${id};';
+      const parameters = { id: 5 };
 
-      const formatedRequest = postgresParser.parse(request);
+      const formatedObject = postgresParser.parse(request, parameters);
 
-      expect(expectedRequest).toEqual(formatedRequest);
+      expect(formatedObject.sqlRequest).toEqual(expectedRequest);
+      expect(formatedObject.sqlParameters).toEqual(parameters);
     });
 
   });

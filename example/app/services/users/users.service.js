@@ -75,7 +75,7 @@ export default class UsersService extends Service {
 
   async getCurrent(req, res) {
     try {
-      const user = await this.repositories.users.getById(this.tokenData.id);
+      const user = await this.repositories.users.getById(req.tokenData.id);
       res.send(user);
     } catch (error) {
       HttpResolver.handle(

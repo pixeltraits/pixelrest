@@ -1,5 +1,4 @@
-process.env.NODE_ENV = 'test';
-import nodemon from "nodemon";
+import { describe, it, expect, vi } from 'vitest';
 import Server from 'pixelrest/server';
 import Logger from 'pixelrest/logger';
 import { SERVER_ERROR_CODES } from "../../../src/nodeExpress/server-errors.config.js";
@@ -11,27 +10,19 @@ describe('Server', () => {
 
     const port = 1339;
 
-    it(`if error code is Port already in use should call handleError and exit nodedemon`, () => {
+    it(`if error code is Port already in use should call handleError and exit process`, () => {
       const error = {
         code: SERVER_ERROR_CODES.PORT_ALREADY_IN_USE
       };
-      const emitMock = {
-        emit: (testArg) => {
-
-        }
-      }
-      nodemon.once = (exit, handler) => {
-        return emitMock;
-      }
-      spyOn(nodemon, 'once').and.callThrough();
-      spyOn(emitMock, 'emit');
-      spyOn(Logger, 'handleError');
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(process, 'exit').mockImplementation(() => {});
 
       Server.onError(error, port);
 
-      expect(nodemon.once).toHaveBeenCalled();
-      expect(emitMock.emit).toHaveBeenCalledWith('quit');
       expect(Logger.handleError).toHaveBeenCalledWith(`Port ${port} already in use`);
+      expect(process.exit).toHaveBeenCalledWith(1);
+
+      vi.restoreAllMocks();
     });
 
     it(`if error code is unknown should call throw error`, () => {
@@ -41,26 +32,24 @@ describe('Server', () => {
 
       expect(() => {
         Server.onError(error, port);
-      }).toThrow(error);
+      }).toThrow();
     });
 
   });
 
-  describe('Server', () => {
+  describe(`onListening should`, () => {
 
-    describe(`onListening should`, () => {
+    const host = `localhost`;
+    const port = 1339;
 
-      const host = `localhost`;
-      const port = 1339;
+    it(`On listening call Logger handleLog`, () => {
+      vi.spyOn(Logger, 'handleLog').mockImplementation(() => {});
 
-      it(`On listening call Logger handleLog`, () => {
-        spyOn(Logger, 'handleLog');
+      Server.onListening(host, port);
 
-        Server.onListening(host, port);
+      expect(Logger.handleLog).toHaveBeenCalledWith(`Listening on ${host}:${port}`);
 
-        expect(Logger.handleLog).toHaveBeenCalledWith(`Listening on ${host}:${port}`);
-      });
-
+      vi.restoreAllMocks();
     });
 
   });

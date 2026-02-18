@@ -20,6 +20,7 @@ export default class DocumentsRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
   }
 
@@ -36,6 +37,7 @@ export default class DocumentsRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return documentId;
@@ -57,6 +59,7 @@ export default class DocumentsRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return document;
@@ -74,6 +77,7 @@ export default class DocumentsRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
   }
 

@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect, vi } from 'vitest';
 import Auth from 'pixelrest/auth';
 import Middleware from 'pixelrest/middleware';
 import HttpResolver from 'pixelrest/httpResolver';
@@ -12,7 +12,7 @@ describe('Service', () => {
 
   describe(`constructor should`, () => {
 
-    Middleware.multer = (req, res, next, config) => {
+    Middleware.multer = (req, res, next, _config) => {
       next();
     };
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -33,21 +33,21 @@ describe('Service', () => {
     );
     const reqMock = {
       headers: {
-        authorization: token
+        authorization: `Bearer ${token}`
       },
       url: '/get-list/5',
       method: 'GET'
     };
     const reqModeratorMock = {
       headers: {
-        authorization: token
+        authorization: `Bearer ${token}`
       },
       url: '/moderator-route',
       method: 'POST'
     };
     const reqMockWithShortTokenTime = {
       headers: {
-        authorization: shortTokenTime
+        authorization: `Bearer ${shortTokenTime}`
       },
       url: '/get-list/5',
       method: 'GET'
@@ -66,14 +66,14 @@ describe('Service', () => {
     };
     const reqMockAdminRoute = {
       headers: {
-        authorization: token
+        authorization: `Bearer ${token}`
       },
       url: '/admin-route',
       method: 'GET'
     };
     const reqMockMulterRoute = {
       headers: {
-        authorization: token
+        authorization: `Bearer ${token}`
       },
       url: '/multer-route',
       method: 'GET'
@@ -142,115 +142,133 @@ describe('Service', () => {
     });
 
     it(`throw an error if initRoute is not override`, () => {
-      const error = new Error(`${SERVICE_ERRORS.INIT_ROUTE}ServiceErrorMock`);
-
       expect(() => {
         new ServiceErrorMock();
-      }).toThrow(error);
+      }).toThrow(`${SERVICE_ERRORS.INIT_ROUTE}ServiceErrorMock`);
     });
 
-    it(`set tokenData when request contains a valid token`, async () => {
+    it(`set tokenData on req when request contains a valid token`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
 
       await service.router.handle(reqMock, resMock, () => {});
 
-      expect(service.tokenData).toEqual(jasmine.objectContaining(tokenData));
+      expect(reqMock.tokenData).toEqual(expect.objectContaining(tokenData));
     });
 
     it(`call multer middlewares if routeconfig multer is defined`, () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(Middleware, 'parseMulterBody').and.callThrough();
-      spyOn(Middleware, 'multer').and.callThrough();
+      vi.spyOn(Middleware, 'parseMulterBody');
+      vi.spyOn(Middleware, 'multer').mockImplementation((req, res, next) => next());
 
       service.router.handle(reqMockMulterRoute, resMock, () => {});
 
-      expect(Middleware.multer).toHaveBeenCalledWith(jasmine.any(Object), jasmine.any(Object), jasmine.any(Function), service.routesConfig[4].multerConfig);
-      expect(Middleware.parseMulterBody).toHaveBeenCalledWith(jasmine.any(Object), jasmine.any(Object), jasmine.any(Function));
+      expect(Middleware.multer).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), expect.any(Function), service.routesConfig[4].multerConfig);
+      expect(Middleware.parseMulterBody).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), expect.any(Function));
+
+      vi.restoreAllMocks();
     });
 
     it(`don't call multer middlewares if routeconfig multer is not defined`, () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
 
-      spyOn(Middleware, 'parseMulterBody').and.callThrough();
-      spyOn(Middleware, 'multer').and.callThrough();
+      vi.spyOn(Middleware, 'parseMulterBody');
+      vi.spyOn(Middleware, 'multer');
 
       service.router.handle(reqMock, resMock, () => {});
 
       expect(Middleware.multer).not.toHaveBeenCalled();
       expect(Middleware.parseMulterBody).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`call joi middleware`, () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(Middleware, 'joi').and.callThrough();
+      vi.spyOn(Middleware, 'joi');
 
       service.router.handle(reqMockMulterRoute, resMock, () => {});
 
-      expect(Middleware.joi).toHaveBeenCalledWith(jasmine.any(Object), jasmine.any(Object), jasmine.any(Function), service.routesConfig[3].schema);
+      expect(Middleware.joi).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), expect.any(Function), service.routesConfig[4].schema);
+
+      vi.restoreAllMocks();
     });
 
     it(`call final route method without token if the route role is public`, () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(resMock, 'send').and.callThrough();
+      vi.spyOn(resMock, 'send');
 
       service.router.handle(reqPublicMock, resMock, () => {});
 
       expect(resMock.send).toHaveBeenCalledWith(2);
+
+      vi.restoreAllMocks();
     });
 
     it(`call HttpResolver.unauthorized if token is empty and the route role is not public`, () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(HttpResolver, 'unauthorized');
+      vi.spyOn(HttpResolver, 'unauthorized').mockImplementation(() => {});
 
       service.router.handle(reqMockWithoutToken, resMock, () => {});
 
-      expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `Any token received`, jasmine.any(Object));
+      expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `Any token received`, expect.any(Object));
+
+      vi.restoreAllMocks();
     });
 
     it(`call HttpResolver.unauthorized if token is wrong and the route role is not public`, () => {
       const service = new ServiceAbstractClassMock('OtherSecret');
-      spyOn(HttpResolver, 'unauthorized');
+      vi.spyOn(HttpResolver, 'unauthorized').mockImplementation(() => {});
 
       service.router.handle(reqMock, resMock, () => {});
 
-      expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `The user is not authorized`, jasmine.any(Object));
+      expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `The user is not authorized`, expect.any(Object));
+
+      vi.restoreAllMocks();
     });
 
     it(`call HttpResolver.unauthorized if token is expired and the route role is not public`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(HttpResolver, 'tokenExpired');
+      vi.spyOn(HttpResolver, 'tokenExpired').mockImplementation(() => {});
 
       await wait(2000);
       service.router.handle(reqMockWithShortTokenTime, resMock, () => {});
 
-      expect(HttpResolver.tokenExpired).toHaveBeenCalledWith(`Service token control`, `The token has expired`, jasmine.any(Object));
+      expect(HttpResolver.tokenExpired).toHaveBeenCalledWith(`Service token control`, `The token has expired`, expect.any(Object));
+
+      vi.restoreAllMocks();
     });
 
     it(`call HttpResolver.unauthorized if token roles don't match with route roles`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(HttpResolver, 'unauthorized');
+      vi.spyOn(HttpResolver, 'unauthorized').mockImplementation(() => {});
 
       service.router.handle(reqModeratorMock, resMock, () => {});
 
-      expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `This user has not suffisent rights`, jasmine.any(Object));
+      expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `This user has not sufficient rights`, expect.any(Object));
+
+      vi.restoreAllMocks();
     });
 
     it(`execute adminRoleServiceMethod => (res.send with 3) if every Middleware is ok and route is get /admin-route`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(resMock, 'send');
+      vi.spyOn(resMock, 'send');
 
       service.router.handle(reqMockAdminRoute, resMock, () => {});
 
       expect(resMock.send).toHaveBeenCalledWith(3);
+
+      vi.restoreAllMocks();
     });
 
     it(`execute getListById => (res.send with 5) if every Middleware is ok and route is get /get-list/5`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      spyOn(resMock, 'send');
+      vi.spyOn(resMock, 'send');
 
       service.router.handle(reqMock, resMock, () => {});
 
       expect(resMock.send).toHaveBeenCalledWith(5);
+
+      vi.restoreAllMocks();
     });
 
   });

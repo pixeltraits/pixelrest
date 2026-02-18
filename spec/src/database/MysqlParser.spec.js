@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect } from 'vitest';
 import MysqlParser from 'pixelrest/mysqlParser';
 
 
@@ -38,8 +38,8 @@ describe('MysqlParser', () => {
 
     it('if there is parameters change params identifier by ? and return an array of params in order of params in the request', () => {
       const request = `
-        SELECT * 
-        FROM test 
+        SELECT *
+        FROM test
         WHERE id=~id
         AND status=~status;
       `;

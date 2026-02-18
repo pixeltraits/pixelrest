@@ -10,6 +10,6 @@ export default class Clone {
    * @return {object} cloned object
    */
   static simpleObject(objectReference) {
-    return JSON.parse(JSON.stringify(objectReference));
+    return structuredClone(objectReference);
   }
 }

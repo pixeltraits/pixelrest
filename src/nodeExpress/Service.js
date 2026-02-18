@@ -21,13 +21,12 @@ export default class Service {
   constructor(tokenSecret) {
     this.router = express.Router();
     this.routesConfig = [];
-    this.tokenData = null;
     this.tokenSecret = tokenSecret;
     this.HTTP_METHODS = HTTP_METHODS;
 
     this.initRoute();
 
-    this.routesConfig.forEach((routeConfig, index) => {
+    this.routesConfig.forEach((routeConfig) => {
       this.addRoute(routeConfig);
     });
   }
@@ -104,7 +103,10 @@ export default class Service {
    * @return {void}
    */
   authorizationMiddleware(req, res, next, authorizedRoles) {
-    const token = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : authHeader;
 
     if (Auth.hasPublicRole(authorizedRoles)) {
       next();
@@ -115,13 +117,16 @@ export default class Service {
       return Service.sendEmptyTokenError(res);
     }
 
+    let tokenData;
     try {
-      this.tokenData = Auth.verify(token, this.tokenSecret);
+      tokenData = Auth.verify(token, this.tokenSecret);
     } catch (error) {
       return Service.sendTokenError(res, error);
     }
 
-    if (!Auth.checkMultiRoles(authorizedRoles, this.tokenData.roles)) {
+    req.tokenData = tokenData;
+
+    if (!Auth.checkMultiRoles(authorizedRoles, tokenData.roles)) {
       return Service.sendRoleError(res);
     }
 

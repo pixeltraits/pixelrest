@@ -1,6 +1,5 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Joi from "joi";
-import multer from "multer";
 
 import Middleware from 'pixelrest/middleware';
 import HttpResolver from 'pixelrest/httpResolver';
@@ -41,12 +40,34 @@ describe('Middleware', () => {
           machin: []
         }
       };
-      spyOn(methodProp, 'next').and.callThrough();
+      vi.spyOn(methodProp, 'next');
 
       Middleware.parseMulterBody(req, res, methodProp.next);
 
       expect(req).toEqual(reqParsed);
       expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
+    });
+
+    it(`not crash on non-string body values (numbers, arrays, objects)`, () => {
+      const req = {
+        body: {
+          count: 42,
+          tags: ['a', 'b'],
+          nested: { key: 'value' },
+          flag: true
+        }
+      };
+      const expectedBody = { ...req.body };
+      vi.spyOn(methodProp, 'next');
+
+      Middleware.parseMulterBody(req, res, methodProp.next);
+
+      expect(req.body).toEqual(expectedBody);
+      expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`next the middleware if body is empty`, () => {
@@ -54,11 +75,13 @@ describe('Middleware', () => {
         body: {}
       };
 
-      spyOn(methodProp, 'next').and.callThrough();
+      vi.spyOn(methodProp, 'next');
 
       Middleware.parseMulterBody(req, res, methodProp.next);
 
       expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -69,9 +92,9 @@ describe('Middleware', () => {
       req: {
         method: 'GET'
       },
-      status: (status) => {
+      status: () => {
         return {
-          send: (error) => {}
+          send: () => {}
         }
       }
     };
@@ -80,18 +103,20 @@ describe('Middleware', () => {
     }
 
     beforeEach(() => {
-      spyOn(methodProp, 'next').and.callThrough();
+      vi.spyOn(methodProp, 'next');
     })
 
     it(`if schema is null only call next`, () => {
       const req = {};
       const schema = null;
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema body data are ok with schemas rules only call joiValidation and next`, () => {
@@ -108,14 +133,16 @@ describe('Middleware', () => {
         })
       };
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalledWith(req.body, schema.body, res);
-      expect(HttpResolver.serviceUnavailable);
+      expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema body data are not ok with schemas rules call serviceUnavailable and don't call next`, () => {
@@ -133,14 +160,16 @@ describe('Middleware', () => {
       };
       const { error } = schema.body.validate(req.body);
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalledWith(req.body, schema.body, res);
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Joi`, `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
       expect(methodProp.next).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema params data are ok with schemas rules only call joiValidation and next`, () => {
@@ -157,14 +186,16 @@ describe('Middleware', () => {
         })
       };
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalledWith(req.params, schema.params, res);
-      expect(HttpResolver.serviceUnavailable);
+      expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema params data are not ok with schemas rules call serviceUnavailable and don't call next`, () => {
@@ -182,14 +213,16 @@ describe('Middleware', () => {
       };
       const { error } = schema.params.validate(req.params);
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalledWith(req.params, schema.params, res);
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Joi`, `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
       expect(methodProp.next).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema query data are ok with schemas rules only call joiValidation and next`, () => {
@@ -206,14 +239,16 @@ describe('Middleware', () => {
         })
       };
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalledWith(req.query, schema.query, res);
-      expect(HttpResolver.serviceUnavailable);
+      expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema query data are not ok with schemas rules call serviceUnavailable and don't call next`, () => {
@@ -231,14 +266,16 @@ describe('Middleware', () => {
       };
       const { error } = schema.query.validate(req.query);
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalledWith(req.query, schema.query, res);
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Joi`, `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
       expect(methodProp.next).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema type data are not ok with schemas types rules call serviceUnavailable and don't call next, body error`, () => {
@@ -271,14 +308,16 @@ describe('Middleware', () => {
         })
       };
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema type data are not ok with schemas types rules call serviceUnavailable and don't call next, params error`, () => {
@@ -311,14 +350,16 @@ describe('Middleware', () => {
         })
       };
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
 
     it(`if schema type data are not ok with schemas types rules call serviceUnavailable and don't call next, query error`, () => {
@@ -351,14 +392,42 @@ describe('Middleware', () => {
         })
       };
 
-      spyOn(Middleware, 'joiValidation').and.callThrough();
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       Middleware.joi(req, res, methodProp.next, schema);
 
       expect(Middleware.joiValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
+    });
+
+  });
+
+  describe(`controlMimeType should`, () => {
+
+    const multerConfig = {
+      allowedMimeTypes: ['image/png', 'image/jpeg']
+    };
+
+    it(`call callback with null and true if mime type is allowed`, () => {
+      const fileFilter = Middleware.controlMimeType(multerConfig);
+      const cb = vi.fn();
+
+      fileFilter({}, { mimetype: 'image/png' }, cb);
+
+      expect(cb).toHaveBeenCalledWith(null, true);
+    });
+
+    it(`call callback with Error if mime type is not allowed`, () => {
+      const fileFilter = Middleware.controlMimeType(multerConfig);
+      const cb = vi.fn();
+
+      fileFilter({}, { mimetype: 'application/pdf' }, cb);
+
+      expect(cb).toHaveBeenCalledWith(expect.any(Error));
     });
 
   });

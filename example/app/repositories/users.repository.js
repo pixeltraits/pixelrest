@@ -22,6 +22,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
   }
 
@@ -38,6 +39,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return userId;
@@ -56,6 +58,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return users;
@@ -77,6 +80,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return user;
@@ -98,6 +102,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return user;
@@ -119,6 +124,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return user;
@@ -140,6 +146,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
 
     return password;
@@ -157,6 +164,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
   }
 
@@ -172,6 +180,7 @@ export default class UsersRepository extends Repository {
       );
     } catch (error) {
       Logger.handleSQLError(error);
+      throw error;
     }
   }
 

@@ -25,11 +25,13 @@ export default class Middleware {
     }
 
     Object.keys(req.body).forEach(bodyProperty => {
+      const value = body[bodyProperty];
       if (
-        body[bodyProperty][0] === '{' &&
-        body[bodyProperty][body[bodyProperty].length - 1] === '}'
+        typeof value === 'string' &&
+        value[0] === '{' &&
+        value[value.length - 1] === '}'
       ) {
-        body[bodyProperty] = JSON.parse(body[bodyProperty]);
+        body[bodyProperty] = JSON.parse(value);
       }
     });
     req.body = body;
