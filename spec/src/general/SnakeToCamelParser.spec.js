@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect, vi } from 'vitest';
 import SnakeToCamelParser from 'pixelrest/snakeToCamelParser';
 
 
@@ -8,7 +8,7 @@ describe('SnakeToCamelParser', () => {
 
     it('call parseArray if argument is an array', () => {
       const argumentData = [];
-      spyOn(SnakeToCamelParser, 'parseArray');
+      vi.spyOn(SnakeToCamelParser, 'parseArray');
 
       SnakeToCamelParser.parse(argumentData);
 
@@ -17,7 +17,7 @@ describe('SnakeToCamelParser', () => {
 
     it('call parseObject if argument is an object', () => {
       const argumentData = {};
-      spyOn(SnakeToCamelParser, 'parseObject');
+      vi.spyOn(SnakeToCamelParser, 'parseObject');
 
       SnakeToCamelParser.parse(argumentData);
 

@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import fsPromises from 'fs/promises';
 import logLevel from 'loglevel';
 
@@ -8,15 +8,19 @@ import { DEFAULT_LOG_CONFIG } from "../../../src/loggers/logger.config.js";
 
 describe('Logger', () => {
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe(`handleLog should`, () => {
 
     const log = `Test log`;
     const filePath = DEFAULT_LOG_CONFIG.LOG_FILE;
 
     it(`call info method of loglevel lib and call addLogToFile`, () => {
-      spyOn(logLevel, 'enableAll');
-      spyOn(logLevel, 'info');
-      spyOn(Logger, 'addLogToFile');
+      vi.spyOn(logLevel, 'enableAll').mockImplementation(() => {});
+      vi.spyOn(logLevel, 'info').mockImplementation(() => {});
+      vi.spyOn(Logger, 'addLogToFile').mockImplementation(() => {});
 
       Logger.handleLog(log, filePath);
 
@@ -33,9 +37,9 @@ describe('Logger', () => {
     const filePath = DEFAULT_LOG_CONFIG.LOG_FILE;
 
     it(`call debug method of loglevel lib and call addLogToFile`, () => {
-      spyOn(logLevel, 'enableAll');
-      spyOn(logLevel, 'debug');
-      spyOn(Logger, 'addLogToFile');
+      vi.spyOn(logLevel, 'enableAll').mockImplementation(() => {});
+      vi.spyOn(logLevel, 'debug').mockImplementation(() => {});
+      vi.spyOn(Logger, 'addLogToFile').mockImplementation(() => {});
 
       Logger.handleError(log, filePath);
 
@@ -52,9 +56,9 @@ describe('Logger', () => {
     const filePath = DEFAULT_LOG_CONFIG.LOG_FILE;
 
     it(`call debug method of loglevel lib and call addLogToFile`, () => {
-      spyOn(logLevel, 'enableAll');
-      spyOn(logLevel, 'debug');
-      spyOn(Logger, 'addLogToFile');
+      vi.spyOn(logLevel, 'enableAll').mockImplementation(() => {});
+      vi.spyOn(logLevel, 'debug').mockImplementation(() => {});
+      vi.spyOn(Logger, 'addLogToFile').mockImplementation(() => {});
 
       Logger.handleSQLError(log, filePath);
 
@@ -75,57 +79,45 @@ describe('Logger', () => {
       const dirPath = new URL(`../../testDir`, import.meta.url);
       const filePath = new URL(`../../testDir/serverLog.log`, import.meta.url);
 
-      try {
-        await Logger.addLogToFile(newLogs, filePath);
-        const processedContentFile = await fsPromises.readFile(filePath, `utf-8`);
+      await Logger.addLogToFile(newLogs, filePath);
+      const processedContentFile = await fsPromises.readFile(filePath, `utf-8`);
 
-        expect(processedContentFile).toEqual(newLogs);
+      expect(processedContentFile).toEqual(newLogs);
 
-        await fsPromises.unlink(filePath);
-        await fsPromises.rmdir(dirPath);
-      } catch (error) {
-        throw error;
-      }
+      await fsPromises.unlink(filePath);
+      await fsPromises.rmdir(dirPath);
     });
 
     it(`add logs for the first time with directory`, async () => {
       const dirPath = new URL(`../../testDir2`, import.meta.url);
       const filePath = new URL(`../../testDir2/serverLog.log`, import.meta.url);
 
-      try {
-        await fsPromises.mkdir(dirPath);
+      await fsPromises.mkdir(dirPath, { recursive: true });
 
-        await Logger.addLogToFile(newLogs, filePath);
-        const processedContentFile = await fsPromises.readFile(filePath, `utf-8`);
+      await Logger.addLogToFile(newLogs, filePath);
+      const processedContentFile = await fsPromises.readFile(filePath, `utf-8`);
 
-        expect(processedContentFile).toEqual(newLogs);
+      expect(processedContentFile).toEqual(newLogs);
 
-        await fsPromises.unlink(filePath);
-        await fsPromises.rmdir(dirPath);
-      } catch (error) {
-        throw error;
-      }
+      await fsPromises.unlink(filePath);
+      await fsPromises.rmdir(dirPath);
     });
 
     it(`add newLogs to file`, async () => {
       const dirPath = new URL(`../../testDir3`, import.meta.url);
       const filePath = new URL(`../../testDir3/serverLog.log`, import.meta.url);
 
-      try {
-        await fsPromises.mkdir(dirPath);
-        await fsPromises.writeFile(filePath, oldContentFile, `utf-8`);
+      await fsPromises.mkdir(dirPath, { recursive: true });
+      await fsPromises.writeFile(filePath, oldContentFile, `utf-8`);
 
-        await Logger.addLogToFile(newLogs, filePath);
+      await Logger.addLogToFile(newLogs, filePath);
 
-        const processedContentFile = await fsPromises.readFile(filePath, `utf-8`);
+      const processedContentFile = await fsPromises.readFile(filePath, `utf-8`);
 
-        expect(processedContentFile).toEqual(finalContentFile);
+      expect(processedContentFile).toEqual(finalContentFile);
 
-        await fsPromises.unlink(filePath);
-        await fsPromises.rmdir(dirPath);
-      } catch (error) {
-        throw error;
-      }
+      await fsPromises.unlink(filePath);
+      await fsPromises.rmdir(dirPath);
     });
 
   });

@@ -5,7 +5,7 @@ export const SERVICE_ERRORS = {
   ANY_TOKEN: `Any token received`,
   EXPIRED_TOKEN: `The token has expired`,
   UNAUTHORIZED_USER: `The user is not authorized`,
-  RIGHTS_ERROR: `This user has not suffisent rights`,
+  RIGHTS_ERROR: `This user has not sufficient rights`,
   MIME_TYPE_ERROR: `This mime type is not authorized`
 };
 

@@ -3,6 +3,7 @@ import Logger from 'pixelrest/logger';
 import {
   HTTP_ERRORS,
   HTTP_CODES,
+  ERROR_TYPES,
   DEFAULT_LOG_CONFIG,
   LOGGER_ERRORS
 } from './logger.config.js';
@@ -23,16 +24,16 @@ export default class HttpResolver {
    * @return {void}
    */
   static async handle(error, where, res, filePath = DEFAULT_LOG_CONFIG.LOG_FILE, date = new Date().getTime()) {
-    if (error.code === HTTP_CODES.UNAUTHORIZED) {
-      return HttpResolver.unauthorized(where, error.message, res, filePath, date);
-    }
-    if (error.code === HTTP_CODES.ALREADY_EXIST) {
-      return HttpResolver.contentAlreadyExists(where, error.message, res, filePath, date);
-    }
-    if (error.code === HTTP_CODES.TOKEN_EXPIRED) {
+    if (error.type === ERROR_TYPES.TOKEN_EXPIRED) {
       return HttpResolver.tokenExpired(where, error.message, res, filePath, date);
     }
-    if (error.code === HTTP_CODES.NO_CONTENT) {
+    if (error.type === ERROR_TYPES.UNAUTHORIZED) {
+      return HttpResolver.unauthorized(where, error.message, res, filePath, date);
+    }
+    if (error.type === ERROR_TYPES.ALREADY_EXIST) {
+      return HttpResolver.contentAlreadyExists(where, error.message, res, filePath, date);
+    }
+    if (error.type === ERROR_TYPES.NO_CONTENT) {
       return HttpResolver.noContent(res, filePath, date);
     }
 
@@ -100,9 +101,9 @@ export default class HttpResolver {
    * @return {void}
    */
   static tokenExpired(where, message, res, filePath = DEFAULT_LOG_CONFIG.LOG_FILE, date = new Date().getTime()) {
-    Logger.handleError(`[${date}] -- ${HTTP_CODES.TOKEN_EXPIRED} -- ${res.req.method}\n${LOGGER_ERRORS.ERROR_ON} ${where}\n${message}\n`, filePath);
+    Logger.handleError(`[${date}] -- ${HTTP_CODES.UNAUTHORIZED} -- ${res.req.method}\n${LOGGER_ERRORS.ERROR_ON} ${where}\n${message}\n`, filePath);
     return res.status(HTTP_CODES.UNAUTHORIZED).send({
-      code: HTTP_CODES.TOKEN_EXPIRED,
+      code: HTTP_CODES.UNAUTHORIZED,
       message: HTTP_ERRORS.TOKEN_EXPIRED
     });
   }

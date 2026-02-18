@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import path from 'path';
+import { fileURLToPath } from 'url';
 import fse from 'fs-extra';
-import { exec } from 'child_process';
+import { execSync } from 'child_process';
 
 (async () => {
-  await fse.copy(new URL(`../example`, import.meta.url).pathname.substring(1), path.resolve());
-  exec('npm install --save nodemon & npm install --save joi & npm install --save express & npm install --save swagger-ui-express & npm install --save mysql2');
+  const exampleDir = fileURLToPath(new URL('../example', import.meta.url));
+  await fse.copy(exampleDir, path.resolve());
+  execSync('npm install --save joi express swagger-ui-express mysql2 && npm install --save-dev nodemon', { stdio: 'inherit' });
 })();

@@ -19,7 +19,7 @@ export default class Auth {
     return jwt.sign(
       data,
       secret,
-      { expiresIn: timeLimit }
+      { expiresIn: timeLimit, algorithm: 'HS256' }
     );
   }
   /**
@@ -31,7 +31,7 @@ export default class Auth {
    * @return {object} token data
    */
   static verify(token, secret) {
-    return jwt.verify(token, secret);
+    return jwt.verify(token, secret, { algorithms: ['HS256'] });
   }
   /**
    * checkMultiRoles

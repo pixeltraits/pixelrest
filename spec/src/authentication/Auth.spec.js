@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect } from 'vitest';
 import Auth from 'pixelrest/auth';
 import jwt from 'jsonwebtoken';
 
@@ -19,16 +19,16 @@ describe('Auth', () => {
   let expectedToken = jwt.sign(
     data,
     secret,
-    { expiresIn: timeLimit }
+    { expiresIn: timeLimit, algorithm: 'HS256' }
   );
 
   describe(`sign should`, () => {
 
     it(`return a json web token`, () => {
       const token = Auth.sign(data, secret, timeLimit);
-      const tokenData = jwt.verify(token, secret);
+      const tokenData = jwt.verify(token, secret, { algorithms: ['HS256'] });
 
-      expect(tokenData).toEqual(jasmine.objectContaining(data));
+      expect(tokenData).toEqual(expect.objectContaining(data));
     });
 
   });
@@ -38,7 +38,7 @@ describe('Auth', () => {
     it(`return token data if the token is valid`, () => {
       const tokenData = Auth.verify(expectedToken, secret);
 
-      expect(tokenData).toEqual(jasmine.objectContaining(data));
+      expect(tokenData).toEqual(expect.objectContaining(data));
     });
 
     it(`return error if token is invalid`, () => {

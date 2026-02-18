@@ -11,17 +11,24 @@ export default class PostgresParser extends BddParser {
    * @public
    * @method parse
    * @param {string} sqlRequest - postgresql request
-   * @return {string} - parsed postgresql request
+   * @param {object} sqlParameters - postgresql parameters
+   * @return {object} parsed request and parameters for pg-promise lib
    */
-  parse(sqlRequest) {
+  parse(sqlRequest, sqlParameters) {
     const parsedSqlRequest = PostgresParser.removeUselessSpaces(sqlRequest);
     const parametersCount = PostgresParser.getParametersCount(parsedSqlRequest);
 
     if (parametersCount <= 0) {
-      return parsedSqlRequest;
+      return {
+        sqlRequest: parsedSqlRequest,
+        sqlParameters: sqlParameters || {}
+      };
     }
 
-    return PostgresParser.normalizeParametersFormat(parsedSqlRequest);
+    return {
+      sqlRequest: PostgresParser.normalizeParametersFormat(parsedSqlRequest),
+      sqlParameters: sqlParameters || {}
+    };
   }
   /**
    * normalizeParametersFormat
@@ -95,19 +102,6 @@ export default class PostgresParser extends BddParser {
    * @return {string}
    */
   static removeUselessSpaces(originalString) {
-    let stringWithoutUselessSpaces = originalString.replace(/\s+/g, ` `).replace(
-      /(\r\n|\n|\r)/gm,
-      ``
-    );
-
-    if (stringWithoutUselessSpaces[0] === ` `) {
-      stringWithoutUselessSpaces = stringWithoutUselessSpaces.substring(1, stringWithoutUselessSpaces.length - 1);
-    }
-
-    if (stringWithoutUselessSpaces[stringWithoutUselessSpaces.length - 1] === ` `) {
-      stringWithoutUselessSpaces = stringWithoutUselessSpaces.substring(0, stringWithoutUselessSpaces.length - 2);
-    }
-
-    return stringWithoutUselessSpaces;
+    return originalString.replace(/\s+/g, ` `).trim();
   }
 }

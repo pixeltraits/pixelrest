@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect } from 'vitest';
 import Controller from 'pixelrest/controller';
 
 
@@ -12,9 +12,7 @@ describe('Controller', () => {
     });
 
     it(`return false if the argument is not null && is not a number`, () => {
-      let value;
-
-      expect(Controller.isNullOrNumber(value)).toBeFalsy();
+      expect(Controller.isNullOrNumber(undefined)).toBeFalsy();
       expect(Controller.isNullOrNumber('test')).toBeFalsy();
       expect(Controller.isNullOrNumber(true)).toBeFalsy();
     });

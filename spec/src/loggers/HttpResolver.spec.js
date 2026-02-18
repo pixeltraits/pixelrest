@@ -1,21 +1,21 @@
-process.env.NODE_ENV = 'test';
+import { describe, it, expect, vi } from 'vitest';
 import HttpResolver from 'pixelrest/httpResolver';
 import Logger from 'pixelrest/logger';
 
-import {DEFAULT_LOG_CONFIG, HTTP_ERRORS, SQL_ERROR_CODES} from "../../../src/loggers/logger.config.js";
-import { HTTP_CODES } from "../../../src/loggers/logger.config.js";
+import { DEFAULT_LOG_CONFIG, HTTP_ERRORS } from "../../../src/loggers/logger.config.js";
+import { HTTP_CODES, ERROR_TYPES } from "../../../src/loggers/logger.config.js";
 
 
 describe('HttpResolver', () => {
 
   const sendMock = {
-    send: (error) => {}
+    send: () => {}
   };
   const res = {
     req: {
       method: 'GET'
     },
-    status: (status) => {
+    status: () => {
       return sendMock;
     }
   };
@@ -26,64 +26,74 @@ describe('HttpResolver', () => {
 
   describe(`handle should`, () => {
 
-    it(`if http error code is 401 call unauthorized method of HttpResolver`, () => {
+    it(`if error type is UNAUTHORIZED call unauthorized method of HttpResolver`, () => {
       const error = {
-        code: HTTP_CODES.UNAUTHORIZED,
+        type: ERROR_TYPES.UNAUTHORIZED,
         message: `test`
       }
-      spyOn(HttpResolver, 'unauthorized');
+      vi.spyOn(HttpResolver, 'unauthorized').mockImplementation(() => {});
 
       HttpResolver.handle(error, where, res, filePath, date);
 
       expect(HttpResolver.unauthorized).toHaveBeenCalledWith(where, error.message, res, filePath, date);
+
+      vi.restoreAllMocks();
     });
 
-    it(`if http error code is 409 call contentAlreadyExists method of HttpResolver`, () => {
+    it(`if error type is ALREADY_EXIST call contentAlreadyExists method of HttpResolver`, () => {
       const error = {
-        code: HTTP_CODES.ALREADY_EXIST,
+        type: ERROR_TYPES.ALREADY_EXIST,
         message: `test`
       }
-      spyOn(HttpResolver, 'contentAlreadyExists');
+      vi.spyOn(HttpResolver, 'contentAlreadyExists').mockImplementation(() => {});
 
       HttpResolver.handle(error, where, res, filePath, date);
 
       expect(HttpResolver.contentAlreadyExists).toHaveBeenCalledWith(where, error.message, res, filePath, date);
+
+      vi.restoreAllMocks();
     });
 
-    it(`if http error code is 4012 call tokenExpired method of HttpResolver`, () => {
+    it(`if error type is TOKEN_EXPIRED call tokenExpired method of HttpResolver`, () => {
       const error = {
-        code: HTTP_CODES.TOKEN_EXPIRED,
+        type: ERROR_TYPES.TOKEN_EXPIRED,
         message: `test`
       }
-      spyOn(HttpResolver, 'tokenExpired');
+      vi.spyOn(HttpResolver, 'tokenExpired').mockImplementation(() => {});
 
       HttpResolver.handle(error, where, res, filePath, date);
 
       expect(HttpResolver.tokenExpired).toHaveBeenCalledWith(where, error.message, res, filePath, date);
+
+      vi.restoreAllMocks();
     });
 
-    it(`if Http error code is 0 call noContent method of HttpResolver`, () => {
+    it(`if error type is NO_CONTENT call noContent method of HttpResolver`, () => {
       const error = {
-        code: HTTP_CODES.NO_CONTENT,
+        type: ERROR_TYPES.NO_CONTENT,
         message: `test`
       }
-      spyOn(HttpResolver, 'noContent');
+      vi.spyOn(HttpResolver, 'noContent').mockImplementation(() => {});
 
       HttpResolver.handle(error, where, res, filePath, date);
 
       expect(HttpResolver.noContent).toHaveBeenCalledWith(res, filePath, date);
+
+      vi.restoreAllMocks();
     });
 
-    it(`if error code is unknown call serviceUnavailable method of HttpResolver`, () => {
+    it(`if error type is unknown call serviceUnavailable method of HttpResolver`, () => {
       const error = {
-        code: null,
+        type: null,
         message: `test`
       }
-      spyOn(HttpResolver, 'serviceUnavailable');
+      vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
       HttpResolver.handle(error, where, res, filePath, date);
 
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(where, error.message, res, filePath, date);
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -91,18 +101,20 @@ describe('HttpResolver', () => {
   describe(`noContent should`, () => {
 
     it(`call handleError method of Logger and send http response no content`, () => {
-      spyOn(Logger, 'handleError');
-      spyOn(res, 'status').and.callThrough();
-      spyOn(sendMock, 'send').and.callThrough();
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(res, 'status').mockReturnValue(sendMock);
+      vi.spyOn(sendMock, 'send');
 
       HttpResolver.noContent(res, filePath, date);
 
       expect(Logger.handleError).toHaveBeenCalledWith(`[${date}] -- ${HTTP_CODES.NO_CONTENT}\n`, filePath);
       expect(res.status).toHaveBeenCalledWith(HTTP_CODES.NO_CONTENT);
-      expect(res.status().send).toHaveBeenCalledWith({
+      expect(sendMock.send).toHaveBeenCalledWith({
         code: HTTP_CODES.NO_CONTENT,
         message: HTTP_ERRORS.NO_CONTENT
       });
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -110,18 +122,20 @@ describe('HttpResolver', () => {
   describe(`badRequest should`, () => {
 
     it(`call handleError method of Logger and send http response badRequest`, () => {
-      spyOn(Logger, 'handleError');
-      spyOn(res, 'status').and.callThrough();
-      spyOn(sendMock, 'send').and.callThrough();
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(res, 'status').mockReturnValue(sendMock);
+      vi.spyOn(sendMock, 'send');
 
       HttpResolver.badRequest(res, filePath, date);
 
       expect(Logger.handleError).toHaveBeenCalledWith(`[${date}] -- ${HTTP_CODES.BAD_REQUEST}\n`, filePath);
       expect(res.status).toHaveBeenCalledWith(HTTP_CODES.BAD_REQUEST);
-      expect(res.status().send).toHaveBeenCalledWith({
+      expect(sendMock.send).toHaveBeenCalledWith({
         code: HTTP_CODES.BAD_REQUEST,
         message: HTTP_ERRORS.BAD_REQUEST
       });
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -129,9 +143,9 @@ describe('HttpResolver', () => {
   describe(`unauthorized should`, () => {
 
     it(`call handleError method of Logger and send http response unauthorized`, () => {
-      spyOn(Logger, 'handleError');
-      spyOn(res, 'status').and.callThrough();
-      spyOn(sendMock, 'send').and.callThrough();
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(res, 'status').mockReturnValue(sendMock);
+      vi.spyOn(sendMock, 'send');
 
       HttpResolver.unauthorized(where, message, res, filePath, date);
 
@@ -140,10 +154,12 @@ describe('HttpResolver', () => {
         filePath
       );
       expect(res.status).toHaveBeenCalledWith(HTTP_CODES.UNAUTHORIZED);
-      expect(res.status().send).toHaveBeenCalledWith({
+      expect(sendMock.send).toHaveBeenCalledWith({
         code: HTTP_CODES.UNAUTHORIZED,
         message: HTTP_ERRORS.UNAUTHORIZED
       });
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -151,21 +167,23 @@ describe('HttpResolver', () => {
   describe(`tokenExpired should`, () => {
 
     it(`call handleError method of Logger and send http response tokenExpired`, () => {
-      spyOn(Logger, 'handleError');
-      spyOn(res, 'status').and.callThrough();
-      spyOn(sendMock, 'send').and.callThrough();
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(res, 'status').mockReturnValue(sendMock);
+      vi.spyOn(sendMock, 'send');
 
       HttpResolver.tokenExpired(where, message, res, filePath, date);
 
       expect(Logger.handleError).toHaveBeenCalledWith(
-        `[${date}] -- ${HTTP_CODES.TOKEN_EXPIRED} -- ${res.req.method}\nError on ${where}\n${message}\n`,
+        `[${date}] -- ${HTTP_CODES.UNAUTHORIZED} -- ${res.req.method}\nError on ${where}\n${message}\n`,
         filePath
       );
       expect(res.status).toHaveBeenCalledWith(HTTP_CODES.UNAUTHORIZED);
-      expect(res.status().send).toHaveBeenCalledWith({
-        code: HTTP_CODES.TOKEN_EXPIRED,
+      expect(sendMock.send).toHaveBeenCalledWith({
+        code: HTTP_CODES.UNAUTHORIZED,
         message: HTTP_ERRORS.TOKEN_EXPIRED
       });
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -173,9 +191,9 @@ describe('HttpResolver', () => {
   describe(`contentAlreadyExists should`, () => {
 
     it(`call handleError method of Logger and send http response contentAlreadyExists`, () => {
-      spyOn(Logger, 'handleError');
-      spyOn(res, 'status').and.callThrough();
-      spyOn(sendMock, 'send').and.callThrough();
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(res, 'status').mockReturnValue(sendMock);
+      vi.spyOn(sendMock, 'send');
 
       HttpResolver.contentAlreadyExists(where, message, res, filePath, date);
 
@@ -184,10 +202,12 @@ describe('HttpResolver', () => {
         filePath
       );
       expect(res.status).toHaveBeenCalledWith(HTTP_CODES.ALREADY_EXIST);
-      expect(res.status().send).toHaveBeenCalledWith({
+      expect(sendMock.send).toHaveBeenCalledWith({
         code: HTTP_CODES.ALREADY_EXIST,
         message: HTTP_ERRORS.CONTENT_ALREADY_EXISTS
       });
+
+      vi.restoreAllMocks();
     });
 
   });
@@ -195,9 +215,9 @@ describe('HttpResolver', () => {
   describe(`serviceUnavailable should`, () => {
 
     it(`call handleError method of Logger and send http response serviceUnavailable`, () => {
-      spyOn(Logger, 'handleError');
-      spyOn(res, 'status').and.callThrough();
-      spyOn(sendMock, 'send').and.callThrough();
+      vi.spyOn(Logger, 'handleError').mockImplementation(() => {});
+      vi.spyOn(res, 'status').mockReturnValue(sendMock);
+      vi.spyOn(sendMock, 'send');
 
       HttpResolver.serviceUnavailable(where, message, res, filePath, date);
 
@@ -206,10 +226,12 @@ describe('HttpResolver', () => {
         filePath
       );
       expect(res.status).toHaveBeenCalledWith(HTTP_CODES.UNAVAILABLE);
-      expect(res.status().send).toHaveBeenCalledWith({
+      expect(sendMock.send).toHaveBeenCalledWith({
         code: HTTP_CODES.UNAVAILABLE,
         message: HTTP_ERRORS.UNAVAILABLE
       });
+
+      vi.restoreAllMocks();
     });
 
   });
