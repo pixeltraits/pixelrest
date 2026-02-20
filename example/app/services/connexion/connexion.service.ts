@@ -1,14 +1,14 @@
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { JWT } from '../../config/secret.js';
 import { ROLES } from '../../config/roles.js';
 import { connexionSchema } from './connexion.schema.js';
-import type UsersRepository from '../../repositories/users.repository.js';
-import Service from '../../../../src/nodeExpress/Service.js';
-import { RouteConfig } from '../../../../src/types.js';
-import Password from '../../../../src/authentication/Password.js';
-import HttpResolver from '../../../../src/loggers/HttpResolver.js';
-import Auth from '../../../../src/authentication/Auth.js';
-import { HTTP_METHODS } from '../../../../src/nodeExpress/http-methods.config.js';
+import UsersRepository from '../../repositories/users.repository.js';
+import { RouteConfig } from 'pixelrest/types';
+import { HTTP_METHODS } from 'pixelrest/httpMethods';
+import Service from 'pixelrest/service';
+import Password from 'pixelrest/password';
+import HttpResolver from 'pixelrest/httpResolver';
+import Auth from 'pixelrest/auth';
 
 
 export default class ConnexionService extends Service {
@@ -25,6 +25,7 @@ export default class ConnexionService extends Service {
 
   constructor(tokenSecret: string) {
     super(tokenSecret);
+    this.initRoutes();
   }
 
   async connexion(req: Request, res: Response): Promise<void> {

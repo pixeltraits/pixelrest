@@ -1,8 +1,9 @@
-import Repository from '../../../src/database/Repository.js';
-import type { DbConnection } from '../../../src/database/repository.config.js';
-import BddParser from '../../../src/database/BddParser.js';
-import Logger from '../../../src/loggers/Logger.js';
-import type { User } from './users.repository.config.js';
+import { User } from './users.repository.config.js';
+import Repository from 'pixelrest/repository';
+import BddParser from 'pixelrest/bddParser';
+import { DbConnection } from 'pixelrest/dbConnection';
+import Logger from 'pixelrest/logger';
+import { isPostgres } from '../config/dbConfig.js';
 
 export default class UsersRepository extends Repository {
 
@@ -11,12 +12,16 @@ export default class UsersRepository extends Repository {
   }
 
   async createTable(user: User = {}): Promise<void> {
+    const idColumn = isPostgres
+      ? 'id SERIAL PRIMARY KEY'
+      : 'id INT PRIMARY KEY NOT NULL AUTO_INCREMENT';
+
     try {
       await this.any(
         `
-          CREATE TABLE users
+          CREATE TABLE IF NOT EXISTS users
           (
-            id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+            ${idColumn},
             firstname VARCHAR(100) NOT NULL,
             lastname VARCHAR(100) NOT NULL,
             email VARCHAR(100) UNIQUE NOT NULL,
@@ -36,8 +41,8 @@ export default class UsersRepository extends Repository {
     try {
       return await this.insertAndGetLastInsertId(
         `
-          INSERT INTO users
-          VALUES (null, ~firstname, ~lastname, ~email, ~password, ~roles);
+          INSERT INTO users (firstname, lastname, email, password, roles)
+          VALUES (~firstname, ~lastname, ~email, ~password, ~roles);
         `,
         user
       );

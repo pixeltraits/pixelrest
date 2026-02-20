@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import 'pixelrest/express';
 
 import { ROLES } from '../../config/roles.js';
 import {
@@ -7,11 +8,11 @@ import {
   updateInformationsSchema,
   updatePasswordSchema
 } from './users.schema.js';
-import { RouteConfig } from '../../../../src/types.js';
-import Service from '../../../../src/nodeExpress/Service.js';
-import HttpResolver from '../../../../src/loggers/HttpResolver.js';
-import Password from '../../../../src/authentication/Password.js';
-import { HTTP_METHODS } from '../../../../src/nodeExpress/http-methods.config.js';
+import { RouteConfig } from 'pixelrest/types';
+import { HTTP_METHODS } from 'pixelrest/httpMethods';
+import HttpResolver from 'pixelrest/httpResolver';
+import Service from 'pixelrest/service';
+import Password from 'pixelrest/password';
 
 
 export default class UsersService extends Service {
@@ -63,6 +64,7 @@ export default class UsersService extends Service {
 
   constructor(tokenSecret: string) {
     super(tokenSecret);
+    this.initRoutes();
   }
 
   async getAll(_req: Request, res: Response): Promise<void> {

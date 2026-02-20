@@ -6,8 +6,30 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": "..",
+    "paths": {
+      "pixelrest/service": ["src/nodeExpress/Service/Service.ts"],
+      "pixelrest/middleware": ["src/nodeExpress/Middleware/Middleware.ts"],
+      "pixelrest/server": ["src/nodeExpress/Server/Server.ts"],
+      "pixelrest/controller": ["src/nodeExpress/Controller/Controller.ts"],
+      "pixelrest/logger": ["src/loggers/Logger/Logger.ts"],
+      "pixelrest/httpResolver": ["src/loggers/HttpResolver/HttpResolver.ts"],
+      "pixelrest/clone": ["src/general/Clone/Clone.ts"],
+      "pixelrest/collection": ["src/general/Collection/Collection.ts"],
+      "pixelrest/snakeToCamelParser": ["src/general/SnakeToCamelParser/SnakeToCamelParser.ts"],
+      "pixelrest/repository": ["src/database/Repository/Repository.ts"],
+      "pixelrest/bddParser": ["src/database/BddParser/BddParser.ts"],
+      "pixelrest/mysqlParser": ["src/database/MysqlParser/MysqlParser.ts"],
+      "pixelrest/postgresParser": ["src/database/PostgresParser/PostgresParser.ts"],
+      "pixelrest/auth": ["src/authentication/Auth/Auth.ts"],
+      "pixelrest/password": ["src/authentication/Password/Password.ts"],
+      "pixelrest/types": ["src/types.ts"],
+      "pixelrest/httpMethods": ["src/nodeExpress/http-methods.config.ts"],
+      "pixelrest/dbConnection": ["src/database/Repository/repository.config.ts"],
+      "pixelrest/express": ["src/nodeExpress/express.d.ts"]
+    }
   },
-  "include": ["./**/*.ts"],
+  "include": ["./**/*.ts", "../src/**/*.ts"],
   "exclude": ["node_modules"]
 }

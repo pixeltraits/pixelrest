@@ -1,8 +1,9 @@
-import type { DbConnection } from '../../../src/database/repository.config.js';
-import BddParser from '../../../src/database/BddParser.js';
-import Repository from '../../../src/database/Repository.js';
-import Logger from '../../../src/loggers/Logger.js';
 import type { DocumentData } from './documents.repository.config.js';
+import Repository from 'pixelrest/repository';
+import { DbConnection } from 'pixelrest/dbConnection';
+import BddParser from 'pixelrest/bddParser';
+import Logger from 'pixelrest/logger';
+import { isPostgres } from '../config/dbConfig.js';
 
 export default class DocumentsRepository extends Repository {
 
@@ -11,12 +12,16 @@ export default class DocumentsRepository extends Repository {
   }
 
   async createTable(document: DocumentData = {}): Promise<void> {
+    const idColumn = isPostgres
+      ? 'id SERIAL PRIMARY KEY'
+      : 'id INT PRIMARY KEY NOT NULL AUTO_INCREMENT';
+
     try {
       await this.any(
         `
-          CREATE TABLE documents
+          CREATE TABLE IF NOT EXISTS documents
           (
-            id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+            ${idColumn},
             name VARCHAR(100) NOT NULL,
             description VARCHAR(500) NOT NULL,
             filename VARCHAR(100) NOT NULL
@@ -34,8 +39,8 @@ export default class DocumentsRepository extends Repository {
     try {
       return await this.insertAndGetLastInsertId(
         `
-          INSERT INTO documents
-          VALUES (null, ~name, ~description, ~filename);
+          INSERT INTO documents (name, description, filename)
+          VALUES (~name, ~description, ~filename);
         `,
         document
       );
