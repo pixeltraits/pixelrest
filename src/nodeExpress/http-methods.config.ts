@@ -1,7 +1,7 @@
-export const HTTP_METHODS = {
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put',
-  PATCH: 'patch',
-  DELETE: 'delete'
-} as const;
+export enum HTTP_METHODS {
+  GET = 'get',
+  POST = 'post',
+  PUT = 'put',
+  PATCH = 'patch',
+  DELETE = 'delete'
+}

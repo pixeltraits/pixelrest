@@ -1,0 +1,74 @@
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: pixelrest
+      MYSQL_DATABASE: pixelrest
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pixelrest
+      POSTGRES_PASSWORD: pixelrest
+      POSTGRES_DB: pixelrest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pixelrest"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app-mysql:
+    build:
+      context: ..
+      dockerfile: example/Dockerfile
+    environment:
+      DB_TYPE: mysql
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: pixelrest
+      MYSQL_DATABASE: pixelrest
+      JWT_SECRET: test-jwt-secret
+      JWT_EXPIRES_IN: 14400
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 1338
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  app-postgres:
+    build:
+      context: ..
+      dockerfile: example/Dockerfile
+    environment:
+      DB_TYPE: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: pixelrest
+      POSTGRES_PASSWORD: pixelrest
+      POSTGRES_DB: pixelrest
+      JWT_SECRET: test-jwt-secret
+      JWT_EXPIRES_IN: 14400
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 1338
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  test:
+    build:
+      context: ..
+      dockerfile: example/Dockerfile
+    entrypoint: []
+    command: ["npx", "vitest", "run", "--config", "example/tests/functional/vitest.config.ts"]
+    environment:
+      APP_MYSQL_URL: http://app-mysql:1338
+      APP_POSTGRES_URL: http://app-postgres:1338
+    depends_on:
+      - app-mysql
+      - app-postgres

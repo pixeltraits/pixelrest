@@ -12,7 +12,8 @@
     "prepare-file": "tsx ./example/app/scripts/prepareDatabase.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:functional": "docker compose -f example/docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test"
   },
   "bin": {
     "pixelrest-new": "bin/generate-project.js"
@@ -30,7 +31,7 @@
     "multer": "^2.0.2",
     "mysql2": "^3.9.1",
     "pg-promise": "^12.6.1",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -40,6 +41,7 @@
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.2.3",
+    "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "eslint": "^10.0.0",
@@ -51,68 +53,79 @@
   },
   "exports": {
     "./service": {
-      "types": "./dist/nodeExpress/Service.d.ts",
-      "default": "./dist/nodeExpress/Service.js"
+      "types": "./dist/nodeExpress/Service/Service.d.ts",
+      "default": "./dist/nodeExpress/Service/Service.js"
     },
     "./middleware": {
-      "types": "./dist/nodeExpress/Middleware.d.ts",
-      "default": "./dist/nodeExpress/Middleware.js"
+      "types": "./dist/nodeExpress/Middleware/Middleware.d.ts",
+      "default": "./dist/nodeExpress/Middleware/Middleware.js"
     },
     "./server": {
-      "types": "./dist/nodeExpress/Server.d.ts",
-      "default": "./dist/nodeExpress/Server.js"
+      "types": "./dist/nodeExpress/Server/Server.d.ts",
+      "default": "./dist/nodeExpress/Server/Server.js"
     },
     "./controller": {
-      "types": "./dist/nodeExpress/Controller.d.ts",
-      "default": "./dist/nodeExpress/Controller.js"
+      "types": "./dist/nodeExpress/Controller/Controller.d.ts",
+      "default": "./dist/nodeExpress/Controller/Controller.js"
     },
     "./logger": {
-      "types": "./dist/loggers/Logger.d.ts",
-      "default": "./dist/loggers/Logger.js"
+      "types": "./dist/loggers/Logger/Logger.d.ts",
+      "default": "./dist/loggers/Logger/Logger.js"
     },
     "./httpResolver": {
-      "types": "./dist/loggers/HttpResolver.d.ts",
-      "default": "./dist/loggers/HttpResolver.js"
+      "types": "./dist/loggers/HttpResolver/HttpResolver.d.ts",
+      "default": "./dist/loggers/HttpResolver/HttpResolver.js"
     },
     "./clone": {
-      "types": "./dist/general/Clone.d.ts",
-      "default": "./dist/general/Clone.js"
+      "types": "./dist/general/Clone/Clone.d.ts",
+      "default": "./dist/general/Clone/Clone.js"
     },
     "./collection": {
-      "types": "./dist/general/Collection.d.ts",
-      "default": "./dist/general/Collection.js"
+      "types": "./dist/general/Collection/Collection.d.ts",
+      "default": "./dist/general/Collection/Collection.js"
     },
     "./snakeToCamelParser": {
-      "types": "./dist/general/SnakeToCamelParser.d.ts",
-      "default": "./dist/general/SnakeToCamelParser.js"
+      "types": "./dist/general/SnakeToCamelParser/SnakeToCamelParser.d.ts",
+      "default": "./dist/general/SnakeToCamelParser/SnakeToCamelParser.js"
     },
     "./repository": {
-      "types": "./dist/database/Repository.d.ts",
-      "default": "./dist/database/Repository.js"
+      "types": "./dist/database/Repository/Repository.d.ts",
+      "default": "./dist/database/Repository/Repository.js"
     },
     "./bddParser": {
-      "types": "./dist/database/BddParser.d.ts",
-      "default": "./dist/database/BddParser.js"
+      "types": "./dist/database/BddParser/BddParser.d.ts",
+      "default": "./dist/database/BddParser/BddParser.js"
     },
     "./mysqlParser": {
-      "types": "./dist/database/MysqlParser.d.ts",
-      "default": "./dist/database/MysqlParser.js"
+      "types": "./dist/database/MysqlParser/MysqlParser.d.ts",
+      "default": "./dist/database/MysqlParser/MysqlParser.js"
     },
     "./postgresParser": {
-      "types": "./dist/database/PostgresParser.d.ts",
-      "default": "./dist/database/PostgresParser.js"
+      "types": "./dist/database/PostgresParser/PostgresParser.d.ts",
+      "default": "./dist/database/PostgresParser/PostgresParser.js"
     },
     "./auth": {
-      "types": "./dist/authentication/Auth.d.ts",
-      "default": "./dist/authentication/Auth.js"
+      "types": "./dist/authentication/Auth/Auth.d.ts",
+      "default": "./dist/authentication/Auth/Auth.js"
     },
     "./password": {
-      "types": "./dist/authentication/Password.d.ts",
-      "default": "./dist/authentication/Password.js"
+      "types": "./dist/authentication/Password/Password.d.ts",
+      "default": "./dist/authentication/Password/Password.js"
     },
     "./types": {
       "types": "./dist/types.d.ts",
       "default": "./dist/types.js"
+    },
+    "./httpMethods": {
+      "types": "./dist/nodeExpress/http-methods.config.d.ts",
+      "default": "./dist/nodeExpress/http-methods.config.js"
+    },
+    "./dbConnection": {
+      "types": "./dist/database/Repository/repository.config.d.ts",
+      "default": "./dist/database/Repository/repository.config.js"
+    },
+    "./express": {
+      "types": "./dist/nodeExpress/express.d.ts"
     }
   },
   "repository": {

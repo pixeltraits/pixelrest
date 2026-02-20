@@ -1,4 +1,4 @@
-import type { TokenData } from '../authentication/auth.config.js';
+import type { TokenData } from '../authentication/Auth/auth.config.js';
 
 declare module 'express-serve-static-core' {
   interface Request {

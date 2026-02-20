@@ -1,7 +1,6 @@
 import express, { type Application, type Request, type Response, type NextFunction } from 'express';
-import swaggerUi from 'swagger-ui-express';
+import { serve, setup } from 'swagger-ui-express';
 import morgan from 'morgan';
-import type { Pool } from 'mysql2/promise';
 import type { Server as HttpServer } from 'http';
 
 import { JWT } from './config/secret.js';
@@ -9,20 +8,23 @@ import { REPOSITORIES } from './repositories/index.js';
 import { serverConfig, type ServerConfig } from './config/serverConfig.js';
 import { SERVICES } from './services/index.js';
 import { SWAGGER_CONFIG } from './config/swagger.js';
-import Server from '../../src/nodeExpress/Server.js';
-import MysqlParser from '../../src/database/MysqlParser.js';
-import Logger from '../../src/loggers/Logger.js';
+import Server from 'pixelrest/server';
+import Logger from 'pixelrest/logger';
+import { DbConnection } from 'pixelrest/dbConnection';
+import BddParser from 'pixelrest/bddParser';
 
 
 export default class App {
   private expressApp: Application;
   private serverConfig: ServerConfig;
   private repositories: Record<string, unknown>;
+  private parser: BddParser;
 
-  constructor(mysqlConnection: Pool, config: ServerConfig) {
+  constructor(dbConnection: DbConnection, config: ServerConfig, parser: BddParser) {
     this.expressApp = express();
     this.serverConfig = config;
     this.repositories = {};
+    this.parser = parser;
     const httpServer: HttpServer = this.expressApp.listen(this.serverConfig.port);
     httpServer.on('error', (error: NodeJS.ErrnoException) => Server.onError(error, this.serverConfig.port));
     httpServer.on('listening', () => Server.onListening(this.serverConfig.host, this.serverConfig.port));
@@ -32,7 +34,7 @@ export default class App {
       this.makeLogger();
       this.makeSwagger();
       this.makeHeaders();
-      this.makeRepositories(mysqlConnection);
+      this.makeRepositories(dbConnection);
       this.makeRoutes();
       this.makeErrorHandler();
     } catch (error) {
@@ -50,13 +52,13 @@ export default class App {
     });
   }
 
-  private makeRepositories(mysqlConnection: Pool): void {
+  private makeRepositories(dbConnection: DbConnection): void {
     const repositoryKeys = Object.keys(REPOSITORIES) as (keyof typeof REPOSITORIES)[];
 
     repositoryKeys.forEach(repositoryKey => {
       this.repositories[repositoryKey] = new REPOSITORIES[repositoryKey](
-        mysqlConnection as unknown as Parameters<typeof REPOSITORIES[typeof repositoryKey]>[0],
-        new MysqlParser()
+        dbConnection as unknown as Parameters<typeof REPOSITORIES[typeof repositoryKey]>[0],
+        this.parser
       );
     });
   }
@@ -77,8 +79,8 @@ export default class App {
   private makeSwagger(): void {
     this.expressApp.use(
       '/api-docs',
-      swaggerUi.serve,
-      swaggerUi.setup(SWAGGER_CONFIG)
+      ...serve,
+      setup(SWAGGER_CONFIG)
     );
   }
 

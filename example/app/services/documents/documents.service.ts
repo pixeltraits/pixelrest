@@ -4,12 +4,12 @@ import type { Request, Response } from 'express';
 import Document from '../../utils/Document.js';
 import { addSchema } from './documents.schema.js';
 import type DocumentsRepository from '../../repositories/documents.repository.js';
-import Service from '../../../../src/nodeExpress/Service.js';
-import { RouteConfig } from '../../../../src/types.js';
+import { RouteConfig } from 'pixelrest/types';
 import { serverConfig } from '../../config/serverConfig.js';
 import { ROLES } from '../../config/roles.js';
-import HttpResolver from '../../../../src/loggers/HttpResolver.js';
-import { HTTP_METHODS } from '../../../../src/nodeExpress/http-methods.config.js';
+import { HTTP_METHODS } from 'pixelrest/httpMethods';
+import Service from 'pixelrest/service';
+import HttpResolver from 'pixelrest/httpResolver';
 
 
 export default class DocumentsService extends Service {
@@ -35,6 +35,7 @@ export default class DocumentsService extends Service {
 
   constructor(tokenSecret: string) {
     super(tokenSecret);
+    this.initRoutes();
   }
 
   private get documentsRepo(): DocumentsRepository {

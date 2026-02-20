@@ -1,4 +1,4 @@
-import type { MulterConfig, JoiSchemaSegment, JoiRouteSchema } from './nodeExpress/middleware.config.js';
+import type { MulterConfig, JoiSchemaSegment, JoiRouteSchema } from './nodeExpress/Middleware/middleware.config.js';
 export type { MulterConfig, JoiSchemaSegment, JoiRouteSchema };
 
-export type { RouteConfig } from './nodeExpress/service.config.js';
+export type { RouteConfig } from './nodeExpress/Service/service.config.js';
