@@ -1,5 +1,18 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+
+const vitestGlobals = {
+  describe: 'readonly',
+  it: 'readonly',
+  expect: 'readonly',
+  vi: 'readonly',
+  beforeEach: 'readonly',
+  afterEach: 'readonly',
+  beforeAll: 'readonly',
+  afterAll: 'readonly'
+};
 
 export default [
   js.configs.recommended,
@@ -17,21 +30,36 @@ export default [
     }
   },
   {
-    files: ['spec/**/*.js'],
+    files: ['**/*.ts'],
+    plugins: {
+      '@typescript-eslint': tseslint
+    },
     languageOptions: {
-      globals: {
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        vi: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly'
+      parser: tsParser,
+      parserOptions: {
+        project: './tsconfig.spec.json'
       }
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': 'off',
+      'no-console': 'off'
     }
   },
   {
-    ignores: ['node_modules/', 'example/']
+    files: ['spec/**/*.js'],
+    languageOptions: {
+      globals: vitestGlobals
+    }
+  },
+  {
+    files: ['spec/**/*.ts'],
+    languageOptions: {
+      globals: vitestGlobals
+    }
+  },
+  {
+    ignores: ['node_modules/', 'example/', 'dist/']
   }
 ];

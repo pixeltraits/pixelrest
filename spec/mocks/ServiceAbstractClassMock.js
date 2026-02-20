@@ -6,8 +6,8 @@ import { getListByIdSchema } from "./service-mock.schema.js";
 
 export default class ServiceAbstractClassMock extends Service {
 
-  initRoute() {
-    this.routesConfig = [
+  get routesConfig() {
+    return [
       {
         route: '/get-list/:id',
         execute: 'getListById',
