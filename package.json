@@ -4,9 +4,12 @@
   "type": "module",
   "description": "API REST node.js",
   "private": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "nodemon ./example/main.js",
-    "prepare-file": "node ./example/app/scripts/prepareDatabase.js",
+    "build": "tsc",
+    "start": "tsx ./example/main.ts",
+    "prepare-file": "tsx ./example/app/scripts/prepareDatabase.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint ."
@@ -31,27 +34,86 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
     "eslint": "^10.0.0",
     "globals": "^17.3.0",
     "nodemon": "^3.0.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
   "exports": {
-    "./service": "./src/nodeExpress/Service.js",
-    "./middleware": "./src/nodeExpress/Middleware.js",
-    "./server": "./src/nodeExpress/Server.js",
-    "./controller": "./src/nodeExpress/Controller.js",
-    "./logger": "./src/loggers/Logger.js",
-    "./httpResolver": "./src/loggers/HttpResolver.js",
-    "./clone": "./src/general/Clone.js",
-    "./collection": "./src/general/Collection.js",
-    "./snakeToCamelParser": "./src/general/SnakeToCamelParser.js",
-    "./repository": "./src/database/Repository.js",
-    "./bddParser": "./src/database/BddParser.js",
-    "./mysqlParser": "./src/database/MysqlParser.js",
-    "./postgresParser": "./src/database/PostgresParser.js",
-    "./auth": "./src/authentication/Auth.js",
-    "./password": "./src/authentication/Password.js"
+    "./service": {
+      "types": "./dist/nodeExpress/Service.d.ts",
+      "default": "./dist/nodeExpress/Service.js"
+    },
+    "./middleware": {
+      "types": "./dist/nodeExpress/Middleware.d.ts",
+      "default": "./dist/nodeExpress/Middleware.js"
+    },
+    "./server": {
+      "types": "./dist/nodeExpress/Server.d.ts",
+      "default": "./dist/nodeExpress/Server.js"
+    },
+    "./controller": {
+      "types": "./dist/nodeExpress/Controller.d.ts",
+      "default": "./dist/nodeExpress/Controller.js"
+    },
+    "./logger": {
+      "types": "./dist/loggers/Logger.d.ts",
+      "default": "./dist/loggers/Logger.js"
+    },
+    "./httpResolver": {
+      "types": "./dist/loggers/HttpResolver.d.ts",
+      "default": "./dist/loggers/HttpResolver.js"
+    },
+    "./clone": {
+      "types": "./dist/general/Clone.d.ts",
+      "default": "./dist/general/Clone.js"
+    },
+    "./collection": {
+      "types": "./dist/general/Collection.d.ts",
+      "default": "./dist/general/Collection.js"
+    },
+    "./snakeToCamelParser": {
+      "types": "./dist/general/SnakeToCamelParser.d.ts",
+      "default": "./dist/general/SnakeToCamelParser.js"
+    },
+    "./repository": {
+      "types": "./dist/database/Repository.d.ts",
+      "default": "./dist/database/Repository.js"
+    },
+    "./bddParser": {
+      "types": "./dist/database/BddParser.d.ts",
+      "default": "./dist/database/BddParser.js"
+    },
+    "./mysqlParser": {
+      "types": "./dist/database/MysqlParser.d.ts",
+      "default": "./dist/database/MysqlParser.js"
+    },
+    "./postgresParser": {
+      "types": "./dist/database/PostgresParser.d.ts",
+      "default": "./dist/database/PostgresParser.js"
+    },
+    "./auth": {
+      "types": "./dist/authentication/Auth.d.ts",
+      "default": "./dist/authentication/Auth.js"
+    },
+    "./password": {
+      "types": "./dist/authentication/Password.d.ts",
+      "default": "./dist/authentication/Password.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
   },
   "repository": {
     "type": "git",
