@@ -125,7 +125,8 @@
       "default": "./dist/database/Repository/repository.config.js"
     },
     "./express": {
-      "types": "./dist/nodeExpress/express.d.ts"
+      "types": "./dist/nodeExpress/express.d.ts",
+      "default": "./src/nodeExpress/express.js"
     }
   },
   "repository": {
