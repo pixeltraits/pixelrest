@@ -19,7 +19,12 @@ export default class ConnexionService extends Service {
       execute: 'connexion',
       method: HTTP_METHODS.POST,
       schema: connexionSchema,
-      roles: [ROLES.PUBLIC]
+      roles: [ROLES.PUBLIC],
+      rateLimit: {
+        windowMs: 15 * 60 * 1000,
+        max: 50,
+        message: 'Too many login attempts, please try again in 15 minutes.'
+      }
     }
   ];
 
@@ -43,7 +48,7 @@ export default class ConnexionService extends Service {
         return;
       }
 
-      const token = Auth.sign(
+      const token = await Auth.sign(
         {
           roles: [user.roles as string],
           id: user.id

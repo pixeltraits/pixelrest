@@ -3,8 +3,16 @@ import { serverConfig } from './app/config/serverConfig.js';
 import { DB_TYPE } from './app/config/dbConfig.js';
 import { DbConnection } from 'pixelrest/dbConnection';
 import BddParser from 'pixelrest/bddParser';
+import Server from 'pixelrest/server';
 
 async function main(): Promise<void> {
+  Server.validateEnv(['JWT_SECRET', 'JWT_EXPIRES_IN']);
+
+  if (DB_TYPE === 'postgres') {
+    Server.validateEnv(['POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB']);
+  } else {
+    Server.validateEnv(['MYSQL_HOST', 'MYSQL_PORT', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_DATABASE']);
+  }
   let dbConnection: DbConnection;
   let parser: BddParser;
 

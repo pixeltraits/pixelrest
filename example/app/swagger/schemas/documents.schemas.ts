@@ -19,16 +19,19 @@ export const Document = {
 
 export const DocumentToAdd = {
   type: 'object',
+  required: ['fileDocument', 'name', 'description'],
   properties: {
     fileDocument: {
       type: 'string',
       format: 'binary'
     },
     name: {
-      type: 'string'
+      type: 'string',
+      maxLength: 100
     },
     description: {
-      type: 'string'
+      type: 'string',
+      maxLength: 500
     }
   }
 };

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import Auth from 'pixelrest/auth';
-import jwt from 'jsonwebtoken';
+import { errors } from 'jose';
 
 import { ROLES } from "./auth.config.js";
 
@@ -16,17 +16,12 @@ describe('Auth', () => {
   };
   const secret = 'secretpass';
   const timeLimit = 10000;
-  let expectedToken = jwt.sign(
-    data,
-    secret,
-    { expiresIn: timeLimit, algorithm: 'HS256' }
-  );
 
   describe(`sign should`, () => {
 
-    it(`return a json web token`, () => {
-      const token = Auth.sign(data, secret, timeLimit);
-      const tokenData = jwt.verify(token, secret, { algorithms: ['HS256'] });
+    it(`return a json web token`, async () => {
+      const token = await Auth.sign(data, secret, timeLimit);
+      const tokenData = await Auth.verify(token, secret);
 
       expect(tokenData).toEqual(expect.objectContaining(data));
     });
@@ -35,16 +30,35 @@ describe('Auth', () => {
 
   describe(`verify should`, () => {
 
-    it(`return token data if the token is valid`, () => {
-      const tokenData = Auth.verify(expectedToken, secret);
+    it(`return token data if the token is valid`, async () => {
+      const token = await Auth.sign(data, secret, timeLimit);
+      const tokenData = await Auth.verify(token, secret);
 
       expect(tokenData).toEqual(expect.objectContaining(data));
     });
 
-    it(`return error if token is invalid`, () => {
-      expect(() => {
-        Auth.verify(expectedToken, '5555');
-      }).toThrow();
+    it(`return error if token is invalid`, async () => {
+      const token = await Auth.sign(data, secret, timeLimit);
+
+      await expect(Auth.verify(token, 'wrongsecret')).rejects.toThrow();
+    });
+
+  });
+
+  describe(`isExpiredError should`, () => {
+
+    it(`return true if error is a JWTExpired instance`, () => {
+      const expiredError = new errors.JWTExpired('jwt expired');
+
+      expect(Auth.isExpiredError(expiredError)).toBe(true);
+    });
+
+    it(`return false if error is a generic Error`, () => {
+      expect(Auth.isExpiredError(new Error('jwt expired'))).toBe(false);
+    });
+
+    it(`return false if error is not an Error`, () => {
+      expect(Auth.isExpiredError('jwt expired')).toBe(false);
     });
 
   });

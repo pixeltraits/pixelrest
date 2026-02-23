@@ -4,6 +4,7 @@ import BddParser from 'pixelrest/bddParser';
 import { DbConnection } from 'pixelrest/dbConnection';
 import Logger from 'pixelrest/logger';
 import { isPostgres } from '../config/dbConfig.js';
+import { ROLES } from '../config/roles.js';
 
 export default class UsersRepository extends Repository {
 
@@ -16,6 +17,11 @@ export default class UsersRepository extends Repository {
       ? 'id SERIAL PRIMARY KEY'
       : 'id INT PRIMARY KEY NOT NULL AUTO_INCREMENT';
 
+    const rolesValues = Object.values(ROLES).map(r => `'${r}'`).join(', ');
+    const rolesColumn = isPostgres
+      ? `roles VARCHAR(20) NOT NULL CHECK (roles IN (${rolesValues}))`
+      : `roles ENUM(${rolesValues}) NOT NULL`;
+
     try {
       await this.any(
         `
@@ -26,7 +32,7 @@ export default class UsersRepository extends Repository {
             lastname VARCHAR(100) NOT NULL,
             email VARCHAR(100) UNIQUE NOT NULL,
             password VARCHAR(100) NOT NULL,
-            roles VARCHAR(100) NOT NULL
+            ${rolesColumn}
           );
         `,
         user

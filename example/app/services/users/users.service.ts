@@ -44,7 +44,12 @@ export default class UsersService extends Service {
       execute: 'add',
       method: HTTP_METHODS.POST,
       schema: addSchema,
-      roles: [ROLES.PUBLIC]
+      roles: [ROLES.PUBLIC],
+      rateLimit: {
+        windowMs: 60 * 60 * 1000,
+        max: 100,
+        message: 'Too many accounts created, please try again in an hour.'
+      }
     },
     {
       route: '/users/update-info',

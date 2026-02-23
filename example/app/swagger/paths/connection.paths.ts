@@ -25,7 +25,7 @@ const connection = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }

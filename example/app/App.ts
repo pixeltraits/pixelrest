@@ -48,7 +48,7 @@ export default class App {
         return next(error);
       }
       Logger.handleError(String(error));
-      return res.status(error.status ?? 500).send({ message: error });
+      return res.status(error.status ?? 500).send({ message: 'An unexpected error occurred' });
     });
   }
 
@@ -85,10 +85,8 @@ export default class App {
   }
 
   private makeHeaders(): void {
-    this.expressApp.use((req: Request, res: Response, next: NextFunction) => {
-      res.header('Access-Control-Allow-Origin', this.serverConfig.corsOrigin);
-      res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE, OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    this.expressApp.use(...Server.securityHeaders({ corsOrigin: this.serverConfig.corsOrigin }));
+    this.expressApp.use((_req: Request, res: Response, next: NextFunction) => {
       res.header('Content-Type', 'application/json');
       next();
     });

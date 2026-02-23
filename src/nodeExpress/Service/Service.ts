@@ -1,11 +1,13 @@
+import rateLimit from 'express-rate-limit';
 import express, { type Router, type Request, type Response, type NextFunction, type RequestHandler } from 'express';
 
 import Auth from '../../authentication/Auth/Auth.js';
 import Middleware from '../Middleware/Middleware.js';
 import HttpResolver from '../../loggers/HttpResolver/HttpResolver.js';
 import type { TokenData } from '../../authentication/Auth/auth.config.js';
-import type { RouteConfig } from './service.config.js';
-import { SERVICE_ERRORS, TOKEN_ERROR_CODES } from '../service-errors.config.js';
+import type { RouteConfig, RateLimitConfig } from './service.config.js';
+import { SERVICE_ERRORS } from '../service-errors.config.js';
+import { ENV_ERRORS } from '../Server/server-errors.config.js';
 
 export default abstract class Service {
   protected router: Router = express.Router();
@@ -14,6 +16,9 @@ export default abstract class Service {
   protected repositories: Record<string, unknown> = {};
 
   protected constructor(tokenSecret: string) {
+    if (!tokenSecret) {
+      throw new Error(ENV_ERRORS.EMPTY_TOKEN_SECRET);
+    }
     this.tokenSecret = tokenSecret;
   }
 
@@ -47,6 +52,10 @@ export default abstract class Service {
       middlewares = [...multerMiddlewares, ...commonMiddlewares];
     }
 
+    if (routeConfig.rateLimit) {
+      middlewares = [Service.buildRateLimitMiddleware(routeConfig.rateLimit), ...middlewares];
+    }
+
     type RouterMethodFn = (path: string, ...handlers: RequestHandler[]) => void;
     (this.router as unknown as Record<string, RouterMethodFn>)[routeConfig.method](
       routeConfig.route,
@@ -54,7 +63,15 @@ export default abstract class Service {
     );
   }
 
-  private authorizationMiddleware(req: Request, res: Response, next: NextFunction, authorizedRoles: string[]): void {
+  private static buildRateLimitMiddleware(rateLimitConfig: RateLimitConfig): RequestHandler {
+    return rateLimit({
+      windowMs: rateLimitConfig.windowMs,
+      limit: rateLimitConfig.max,
+      message: rateLimitConfig.message ?? 'Too many requests, please try again later.'
+    });
+  }
+
+  private async authorizationMiddleware(req: Request, res: Response, next: NextFunction, authorizedRoles: string[]): Promise<void> {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.startsWith('Bearer ')
       ? authHeader.slice(7)
@@ -71,7 +88,7 @@ export default abstract class Service {
 
     let tokenData!: TokenData;
     try {
-      tokenData = Auth.verify(token, this.tokenSecret);
+      tokenData = await Auth.verify(token, this.tokenSecret);
     } catch (error) {
       return Service.sendTokenError(res, error);
     }
@@ -98,7 +115,7 @@ export default abstract class Service {
   }
 
   private static sendTokenError(res: Response, error: unknown): void {
-    if ((error as Error).message === TOKEN_ERROR_CODES.EXPIRED) {
+    if (Auth.isExpiredError(error)) {
       return HttpResolver.tokenExpired(
         SERVICE_ERRORS.SERVICE_TOKEN_ERROR,
         SERVICE_ERRORS.EXPIRED_TOKEN,

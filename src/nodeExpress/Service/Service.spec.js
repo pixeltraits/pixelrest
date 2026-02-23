@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import Auth from 'pixelrest/auth';
 import Middleware from 'pixelrest/middleware';
 import HttpResolver from 'pixelrest/httpResolver';
@@ -7,6 +7,7 @@ import ServiceErrorMock from './ServiceErrorMock.js';
 import { getListByIdSchema } from "./service-mock.schema.js";
 import { SERVICE_ERRORS } from "../service-errors.config.js";
 
+const flush = () => new Promise(resolve => setTimeout(resolve, 50));
 
 describe('Service', () => {
 
@@ -21,67 +22,58 @@ describe('Service', () => {
       roles: ['admin'],
       id: 1
     };
-    const token = Auth.sign(
-      tokenData,
-      tokenSecret,
-      14400
-    );
-    const shortTokenTime = Auth.sign(
-      tokenData,
-      tokenSecret,
-      1
-    );
-    const reqMock = {
-      headers: {
-        authorization: `Bearer ${token}`
-      },
-      url: '/get-list/5',
-      method: 'GET'
-    };
-    const reqModeratorMock = {
-      headers: {
-        authorization: `Bearer ${token}`
-      },
-      url: '/moderator-route',
-      method: 'POST'
-    };
-    const reqMockWithShortTokenTime = {
-      headers: {
-        authorization: `Bearer ${shortTokenTime}`
-      },
-      url: '/get-list/5',
-      method: 'GET'
-    };
+
+    let token;
+    let shortTokenTime;
+    let reqMock;
+    let reqModeratorMock;
+    let reqMockWithShortTokenTime;
+    let reqMockAdminRoute;
+    let reqMockMulterRoute;
+
+    beforeAll(async () => {
+      token = await Auth.sign(tokenData, tokenSecret, 14400);
+      shortTokenTime = await Auth.sign(tokenData, tokenSecret, 1);
+
+      reqMock = {
+        headers: { authorization: `Bearer ${token}` },
+        url: '/get-list/5',
+        method: 'GET'
+      };
+      reqModeratorMock = {
+        headers: { authorization: `Bearer ${token}` },
+        url: '/moderator-route',
+        method: 'POST'
+      };
+      reqMockWithShortTokenTime = {
+        headers: { authorization: `Bearer ${shortTokenTime}` },
+        url: '/get-list/5',
+        method: 'GET'
+      };
+      reqMockAdminRoute = {
+        headers: { authorization: `Bearer ${token}` },
+        url: '/admin-route',
+        method: 'GET'
+      };
+      reqMockMulterRoute = {
+        headers: { authorization: `Bearer ${token}` },
+        url: '/multer-route',
+        method: 'GET'
+      };
+    });
+
     const reqMockWithoutToken = {
-      headers: {
-      },
+      headers: {},
       url: '/get-list/5',
       method: 'GET'
     };
     const reqPublicMock = {
-      headers: {
-      },
+      headers: {},
       url: '/public-route',
       method: 'POST'
     };
-    const reqMockAdminRoute = {
-      headers: {
-        authorization: `Bearer ${token}`
-      },
-      url: '/admin-route',
-      method: 'GET'
-    };
-    const reqMockMulterRoute = {
-      headers: {
-        authorization: `Bearer ${token}`
-      },
-      url: '/multer-route',
-      method: 'GET'
-    };
     const resMock = {
-      send: () => {
-
-      }
+      send: () => {}
     };
     const routesConfig = [
       {
@@ -151,7 +143,8 @@ describe('Service', () => {
     it(`set tokenData on req when request contains a valid token`, async () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
 
-      await service.router.handle(reqMock, resMock, () => {});
+      service.router.handle(reqMock, resMock, () => {});
+      await flush();
 
       expect(reqMock.tokenData).toEqual(expect.objectContaining(tokenData));
     });
@@ -216,11 +209,12 @@ describe('Service', () => {
       vi.restoreAllMocks();
     });
 
-    it(`call HttpResolver.unauthorized if token is wrong and the route role is not public`, () => {
+    it(`call HttpResolver.unauthorized if token is wrong and the route role is not public`, async () => {
       const service = new ServiceAbstractClassMock('OtherSecret');
       vi.spyOn(HttpResolver, 'unauthorized').mockImplementation(() => {});
 
       service.router.handle(reqMock, resMock, () => {});
+      await flush();
 
       expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `The user is not authorized`, expect.any(Object));
 
@@ -233,6 +227,7 @@ describe('Service', () => {
 
       await wait(2000);
       service.router.handle(reqMockWithShortTokenTime, resMock, () => {});
+      await flush();
 
       expect(HttpResolver.tokenExpired).toHaveBeenCalledWith(`Service token control`, `The token has expired`, expect.any(Object));
 
@@ -244,6 +239,7 @@ describe('Service', () => {
       vi.spyOn(HttpResolver, 'unauthorized').mockImplementation(() => {});
 
       service.router.handle(reqModeratorMock, resMock, () => {});
+      await flush();
 
       expect(HttpResolver.unauthorized).toHaveBeenCalledWith(`Service token control`, `This user has not sufficient rights`, expect.any(Object));
 
@@ -255,6 +251,7 @@ describe('Service', () => {
       vi.spyOn(resMock, 'send');
 
       service.router.handle(reqMockAdminRoute, resMock, () => {});
+      await flush();
 
       expect(resMock.send).toHaveBeenCalledWith(3);
 
@@ -266,6 +263,7 @@ describe('Service', () => {
       vi.spyOn(resMock, 'send');
 
       service.router.handle(reqMock, resMock, () => {});
+      await flush();
 
       expect(resMock.send).toHaveBeenCalledWith(5);
 

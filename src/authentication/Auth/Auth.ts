@@ -1,19 +1,25 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify, errors } from 'jose';
 
 import { ROLES } from './auth.config.js';
 import type { TokenData } from './auth.config.js';
 
 export default class Auth {
-  static sign(data: TokenData, secret: string, timeLimit: number): string {
-    return jwt.sign(
-      data,
-      secret,
-      { expiresIn: timeLimit, algorithm: 'HS256' }
-    );
+  static async sign(data: TokenData, secret: string, timeLimit: number): Promise<string> {
+    const secretKey = new TextEncoder().encode(secret);
+    return new SignJWT(data as Record<string, unknown>)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime(`${timeLimit}s`)
+      .sign(secretKey);
   }
 
-  static verify(token: string, secret: string): TokenData {
-    return jwt.verify(token, secret, { algorithms: ['HS256'] }) as TokenData;
+  static async verify(token: string, secret: string): Promise<TokenData> {
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, secretKey, { algorithms: ['HS256'] });
+    return payload as unknown as TokenData;
+  }
+
+  static isExpiredError(error: unknown): boolean {
+    return error instanceof errors.JWTExpired;
   }
 
   static checkMultiRoles(authorizedRoles: string[], userRoles: string[]): boolean {

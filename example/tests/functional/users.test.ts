@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { APP_MYSQL_URL, APP_POSTGRES_URL, createUser, login, authHeaders } from './helpers.js';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { APP_MYSQL_URL, APP_POSTGRES_URL, createUser, login, authHeaders, uniqueEmail } from './helpers.js';
 
 const databases = [
   ['MySQL', APP_MYSQL_URL],
@@ -92,5 +92,74 @@ describe.each(databases)('%s - Users & Connexion', (_dbName, baseUrl) => {
     // Verify new password works
     const newToken = await login(baseUrl, userEmail, newPassword);
     expect(newToken).toBeTruthy();
+  });
+});
+
+describe.each(databases)('%s - Users & Connexion - Error Cases', (_dbName, baseUrl) => {
+  let token: string;
+  let userId: number;
+  let userEmail: string;
+  let userPassword: string;
+
+  beforeAll(async () => {
+    const { user, password } = await createUser(baseUrl);
+    userId = user.id as number;
+    userEmail = user.email as string;
+    userPassword = password;
+    token = await login(baseUrl, userEmail, userPassword);
+  });
+
+  it('POST /users - should return 503 when email already exists', async () => {
+    const email = uniqueEmail();
+    const body = { firstname: 'Test', lastname: 'User', email, password: 'password123', roles: 'admin' };
+    await fetch(`${baseUrl}/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const res = await fetch(`${baseUrl}/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    expect(res.status).toBe(503);
+  });
+
+  it('POST /connexion - should return 401 for wrong password', async () => {
+    const res = await fetch(`${baseUrl}/connexion`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, password: 'wrongpassword' })
+    });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /users - should return 401 without token', async () => {
+    const res = await fetch(`${baseUrl}/users`);
+
+    expect(res.status).toBe(401);
+  });
+
+  it('PUT /users/update-info - should return 401 without token', async () => {
+    const res = await fetch(`${baseUrl}/users/update-info`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: userId, firstname: 'X', lastname: 'Y', email: userEmail })
+    });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('PUT /users/update-pass - should return 401 for wrong old password', async () => {
+    const res = await fetch(`${baseUrl}/users/update-pass`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify({ id: userId, oldPassword: 'wrongpassword', password: 'newpassword' })
+    });
+
+    expect(res.status).toBe(401);
   });
 });

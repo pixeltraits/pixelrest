@@ -4,5 +4,5 @@ COPY package.json package-lock.json* ./
 RUN npm install
 COPY . .
 RUN npm run build
-RUN mkdir -p example/temp example/documents
+RUN mkdir -p temp documents
 ENTRYPOINT ["./example/docker-entrypoint.sh"]

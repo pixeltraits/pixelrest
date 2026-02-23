@@ -22,7 +22,7 @@ const findAll = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }
@@ -42,10 +42,7 @@ const findCurrent = {
         content: {
           'application/json': {
             schema: {
-              type: 'array',
-              items: {
-                $ref: '#/components/schemas/User'
-              }
+              $ref: '#/components/schemas/User'
             }
           }
         }
@@ -53,7 +50,7 @@ const findCurrent = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }
@@ -71,8 +68,10 @@ const findById = {
       name: 'id',
       in: 'path',
       required: true,
-      type: 'integer',
-      format: 'int64'
+      schema: {
+        type: 'integer',
+        format: 'int64'
+      }
     }],
     responses: {
       200: {
@@ -88,7 +87,7 @@ const findById = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }
@@ -99,9 +98,6 @@ const create = {
   post: {
     tags: ['users'],
     summary: 'Add user',
-    security: [{
-      bearerAuth: []
-    }],
     requestBody: {
       content: {
         'application/json': {
@@ -125,7 +121,7 @@ const create = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }
@@ -154,7 +150,7 @@ const updateInformations = {
         content: {
           'application/json': {
             schema: {
-              $ref: '#/components/schemas/UserInformations'
+              $ref: '#/components/schemas/User'
             }
           }
         }
@@ -162,7 +158,7 @@ const updateInformations = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }
@@ -192,7 +188,7 @@ const updatePassword = {
       401: {
         description: 'Unauthorized'
       },
-      500: {
+      503: {
         description: 'Unexpected error'
       }
     }

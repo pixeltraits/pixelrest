@@ -1,4 +1,6 @@
-import camelcase from 'camelcase';
+function toCamelCase(str: string): string {
+  return str.replace(/_([a-z0-9])/g, (_, char) => char.toUpperCase());
+}
 
 export default class SnakeToCamelParser {
   static parse(snakecaseData: unknown): unknown {
@@ -29,7 +31,7 @@ export default class SnakeToCamelParser {
     const camelcaseObject: Record<string, unknown> = {};
 
     Object.keys(snakecaseObject).forEach(snakecaseObjectKey => {
-      camelcaseObject[camelcase(snakecaseObjectKey)] = SnakeToCamelParser.parse(snakecaseObject[snakecaseObjectKey]);
+      camelcaseObject[toCamelCase(snakecaseObjectKey)] = SnakeToCamelParser.parse(snakecaseObject[snakecaseObjectKey]);
     });
 
     return camelcaseObject;

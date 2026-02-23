@@ -40,6 +40,12 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z -w1 localhost 1338"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
 
   app-postgres:
     build:
@@ -59,6 +65,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z -w1 localhost 1338"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
 
   test:
     build:
@@ -70,5 +82,7 @@ services:
       APP_MYSQL_URL: http://app-mysql:1338
       APP_POSTGRES_URL: http://app-postgres:1338
     depends_on:
-      - app-mysql
-      - app-postgres
+      app-mysql:
+        condition: service_healthy
+      app-postgres:
+        condition: service_healthy

@@ -9,6 +9,3 @@ export const SERVICE_ERRORS = {
   MIME_TYPE_ERROR: 'This mime type is not authorized'
 } as const;
 
-export const TOKEN_ERROR_CODES = {
-  EXPIRED: 'jwt expired'
-} as const;

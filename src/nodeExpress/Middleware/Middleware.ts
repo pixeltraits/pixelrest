@@ -1,3 +1,4 @@
+import path from 'path';
 import multer from 'multer';
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 
@@ -21,7 +22,11 @@ export default class Middleware {
         value[0] === '{' &&
         value[value.length - 1] === '}'
       ) {
-        body[bodyProperty] = JSON.parse(value);
+        try {
+          body[bodyProperty] = JSON.parse(value);
+        } catch {
+          // keep original string value if JSON parsing fails
+        }
       }
     });
     req.body = body;
@@ -73,10 +78,17 @@ export default class Middleware {
 
   private static controlMimeType(multerConfig: MulterConfig) {
     return (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+      if (file.originalname) {
+        file.originalname = Middleware.sanitizeFilename(file.originalname);
+      }
       if (multerConfig.allowedMimeTypes.findIndex(allowedMimeType => allowedMimeType === file.mimetype) === -1) {
         return cb(new Error(SERVICE_ERRORS.MIME_TYPE_ERROR));
       }
       return cb(null, true);
     };
+  }
+
+  private static sanitizeFilename(filename: string): string {
+    return path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
   }
 }
