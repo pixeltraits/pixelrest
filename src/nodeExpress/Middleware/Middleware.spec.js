@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Joi from "joi";
+import { z } from 'zod';
 
 import Middleware from 'pixelrest/middleware';
 import HttpResolver from 'pixelrest/httpResolver';
@@ -86,7 +86,7 @@ describe('Middleware', () => {
 
   });
 
-  describe(`joi should`, () => {
+  describe(`validate should`, () => {
 
     const res = {
       req: {
@@ -111,7 +111,7 @@ describe('Middleware', () => {
       const schema = null;
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
       expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('Middleware', () => {
       vi.restoreAllMocks();
     });
 
-    it(`if schema body data are ok with schemas rules only call joiValidation and next`, () => {
+    it(`if schema body data are ok with schemas rules only call zodValidation and next`, () => {
       const req = {
         body: {
           email: 'test@email.com',
@@ -127,18 +127,18 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        body: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        body: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalledWith(req.body, schema.body, res);
+      expect(Middleware.zodValidation).toHaveBeenCalledWith(req.body, schema.body, res);
       expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
 
@@ -153,26 +153,27 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        body: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        body: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
-      const { error } = schema.body.validate(req.body);
+      const result = schema.body.safeParse(req.body);
+      const error = result.error;
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalledWith(req.body, schema.body, res);
-      expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Joi`, `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
+      expect(Middleware.zodValidation).toHaveBeenCalledWith(req.body, schema.body, res);
+      expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Zod`, `${SERVICE_ERRORS.VALIDATION_ERROR}${error}`, res);
       expect(methodProp.next).not.toHaveBeenCalled();
 
       vi.restoreAllMocks();
     });
 
-    it(`if schema params data are ok with schemas rules only call joiValidation and next`, () => {
+    it(`if schema params data are ok with schemas rules only call zodValidation and next`, () => {
       const req = {
         params: {
           email: 'test@email.com',
@@ -180,18 +181,18 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        params: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        params: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalledWith(req.params, schema.params, res);
+      expect(Middleware.zodValidation).toHaveBeenCalledWith(req.params, schema.params, res);
       expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
 
@@ -206,26 +207,27 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        params: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        params: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
-      const { error } = schema.params.validate(req.params);
+      const result = schema.params.safeParse(req.params);
+      const error = result.error;
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalledWith(req.params, schema.params, res);
-      expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Joi`, `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
+      expect(Middleware.zodValidation).toHaveBeenCalledWith(req.params, schema.params, res);
+      expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Zod`, `${SERVICE_ERRORS.VALIDATION_ERROR}${error}`, res);
       expect(methodProp.next).not.toHaveBeenCalled();
 
       vi.restoreAllMocks();
     });
 
-    it(`if schema query data are ok with schemas rules only call joiValidation and next`, () => {
+    it(`if schema query data are ok with schemas rules only call zodValidation and next`, () => {
       const req = {
         query: {
           email: 'test@email.com',
@@ -233,18 +235,18 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        query: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        query: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalledWith(req.query, schema.query, res);
+      expect(Middleware.zodValidation).toHaveBeenCalledWith(req.query, schema.query, res);
       expect(HttpResolver.serviceUnavailable).not.toHaveBeenCalled();
       expect(methodProp.next).toHaveBeenCalled();
 
@@ -259,20 +261,21 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        query: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        query: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
-      const { error } = schema.query.validate(req.query);
+      const result = schema.query.safeParse(req.query);
+      const error = result.error;
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalledWith(req.query, schema.query, res);
-      expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Joi`, `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
+      expect(Middleware.zodValidation).toHaveBeenCalledWith(req.query, schema.query, res);
+      expect(HttpResolver.serviceUnavailable).toHaveBeenCalledWith(`Zod`, `${SERVICE_ERRORS.VALIDATION_ERROR}${error}`, res);
       expect(methodProp.next).not.toHaveBeenCalled();
 
       vi.restoreAllMocks();
@@ -294,26 +297,26 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        body: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        body: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         }),
-        params: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        params: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         }),
-        query: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        query: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalled();
+      expect(Middleware.zodValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
 
@@ -336,26 +339,26 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        body: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        body: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         }),
-        params: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        params: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         }),
-        query: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        query: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalled();
+      expect(Middleware.zodValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
 
@@ -378,26 +381,26 @@ describe('Middleware', () => {
         }
       };
       const schema = {
-        body: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        body: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         }),
-        params: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        params: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         }),
-        query: Joi.object().keys({
-          email: Joi.string().email().required().max(100),
-          password: Joi.string().required().max(255)
+        query: z.object({
+          email: z.string().email().max(100),
+          password: z.string().max(255)
         })
       };
 
-      vi.spyOn(Middleware, 'joiValidation');
+      vi.spyOn(Middleware, 'zodValidation');
       vi.spyOn(HttpResolver, 'serviceUnavailable').mockImplementation(() => {});
 
-      Middleware.joi(req, res, methodProp.next, schema);
+      Middleware.validate(req, res, methodProp.next, schema);
 
-      expect(Middleware.joiValidation).toHaveBeenCalled();
+      expect(Middleware.zodValidation).toHaveBeenCalled();
       expect(HttpResolver.serviceUnavailable).toHaveBeenCalled();
       expect(methodProp.next).not.toHaveBeenCalled();
 

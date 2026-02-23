@@ -1,6 +1,6 @@
 {
   "name": "pixelrest",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "API REST node.js",
   "private": false,
@@ -15,7 +15,11 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "docker:build": "docker compose -f example/docker-compose.yml up --build",
-    "test:functional": "docker compose -f example/docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test"
+    "test:functional": "docker compose -f example/docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test --no-attach mysql --no-attach postgres --no-attach app-mysql --no-attach app-postgres",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:docker": "docker compose -f docs/docker-compose.yml up --build",
+    "mcp:install": "cd mcp && npm install",
+    "mcp:start": "tsx mcp/server.ts"
   },
   "bin": {
     "pixelrest-new": "bin/generate-project.js"
@@ -25,7 +29,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
-    "joi": "^18.0.2",
+    "zod": "^3.24.2",
     "jose": "^6.1.3",
     "loglevel": "^1.9.1",
     "multer": "^2.0.2",

@@ -6,12 +6,12 @@ export interface MulterConfig {
   allowedMimeTypes: string[];
 }
 
-export interface JoiSchemaSegment {
-  validate(value: unknown): { error?: unknown };
+export interface SchemaSegment {
+  safeParse(value: unknown): { success: boolean; error?: unknown };
 }
 
-export interface JoiRouteSchema {
-  body?: JoiSchemaSegment;
-  params?: JoiSchemaSegment;
-  query?: JoiSchemaSegment;
+export interface RouteSchema {
+  body?: SchemaSegment;
+  params?: SchemaSegment;
+  query?: SchemaSegment;
 }

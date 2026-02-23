@@ -1,6 +1,6 @@
 export const SERVICE_ERRORS = {
   INIT_ROUTE: 'You should override initRoute method => ',
-  JOI_VALIDATION: 'Joi validation error :\n',
+  VALIDATION_ERROR: 'Validation error :\n',
   SERVICE_TOKEN_ERROR: 'Service token control',
   ANY_TOKEN: 'Any token received',
   EXPIRED_TOKEN: 'The token has expired',

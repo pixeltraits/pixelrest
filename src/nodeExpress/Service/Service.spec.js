@@ -176,13 +176,13 @@ describe('Service', () => {
       vi.restoreAllMocks();
     });
 
-    it(`call joi middleware`, () => {
+    it(`call validate middleware`, () => {
       const service = new ServiceAbstractClassMock(tokenSecret);
-      vi.spyOn(Middleware, 'joi');
+      vi.spyOn(Middleware, 'validate');
 
       service.router.handle(reqMockMulterRoute, resMock, () => {});
 
-      expect(Middleware.joi).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), expect.any(Function), service.routesConfig[4].schema);
+      expect(Middleware.validate).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), expect.any(Function), service.routesConfig[4].schema);
 
       vi.restoreAllMocks();
     });

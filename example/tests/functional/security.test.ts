@@ -132,25 +132,6 @@ describe.each(databases)('%s - Security', (_dbName, baseUrl) => {
     expect(res.status).toBe(401);
   });
 
-  // ─── Rate limiting ─────────────────────────────────────────────────────────
-
-  it('POST /connexion - should return 429 after exceeding the rate limit', async () => {
-    const statuses: number[] = [];
-
-    for (let i = 0; i <= 50; i++) {
-      const res = await fetch(`${baseUrl}/connexion`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: `ratelimit-${i}@test.com`, password: 'wrongpassword' })
-      });
-      statuses.push(res.status);
-
-      if (res.status === 429) break;
-    }
-
-    expect(statuses).toContain(429);
-  }, 60000);
-
   // ─── SQL injection ─────────────────────────────────────────────────────────
 
   it('should safely handle SQL injection in email field on login', async () => {
@@ -174,6 +155,25 @@ describe.each(databases)('%s - Security', (_dbName, baseUrl) => {
     });
     expect(loginRes.status).toBe(200);
   });
+
+  // ─── Rate limiting ─────────────────────────────────────────────────────────
+
+  it('POST /connexion - should return 429 after exceeding the rate limit', async () => {
+    const statuses: number[] = [];
+
+    for (let i = 0; i <= 50; i++) {
+      const res = await fetch(`${baseUrl}/connexion`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: `ratelimit-${i}@test.com`, password: 'wrongpassword' })
+      });
+      statuses.push(res.status);
+
+      if (res.status === 429) break;
+    }
+
+    expect(statuses).toContain(429);
+  }, 60000);
 
   it('should safely store SQL injection attempts in user fields', async () => {
     const res = await fetch(`${baseUrl}/users`, {

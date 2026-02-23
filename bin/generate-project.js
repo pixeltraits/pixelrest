@@ -29,5 +29,5 @@ import { execSync } from 'child_process';
   };
   await fs.writeFile(path.join(destDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2) + '\n');
 
-  execSync('npm install --save pixelrest joi express swagger-ui-express mysql2 && npm install --save-dev @types/swagger-ui-express tsx typescript', { stdio: 'inherit' });
+  execSync('npm install --save pixelrest zod express swagger-ui-express mysql2 && npm install --save-dev @types/swagger-ui-express tsx typescript', { stdio: 'inherit' });
 })();

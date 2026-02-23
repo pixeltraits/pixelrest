@@ -3,7 +3,7 @@ import multer from 'multer';
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 
 import HttpResolver from '../../loggers/HttpResolver/HttpResolver.js';
-import type { MulterConfig, JoiRouteSchema, JoiSchemaSegment } from './middleware.config.js';
+import type { MulterConfig, RouteSchema, SchemaSegment } from './middleware.config.js';
 import { SERVICE_ERRORS } from '../service-errors.config.js';
 
 export default class Middleware {
@@ -34,16 +34,16 @@ export default class Middleware {
     next();
   }
 
-  static joi(req: Request, res: Response, next: NextFunction, schema: JoiRouteSchema | null): void {
+  static validate(req: Request, res: Response, next: NextFunction, schema: RouteSchema | null): void {
     if (schema) {
       let validationStatus = true;
-      if (schema.body && !Middleware.joiValidation(req.body, schema.body, res)) {
+      if (schema.body && !Middleware.zodValidation(req.body, schema.body, res)) {
         validationStatus = false;
       }
-      if (schema.params && !Middleware.joiValidation(req.params, schema.params, res)) {
+      if (schema.params && !Middleware.zodValidation(req.params, schema.params, res)) {
         validationStatus = false;
       }
-      if (schema.query && !Middleware.joiValidation(req.query, schema.query, res)) {
+      if (schema.query && !Middleware.zodValidation(req.query, schema.query, res)) {
         validationStatus = false;
       }
       if (validationStatus) {
@@ -54,11 +54,11 @@ export default class Middleware {
     }
   }
 
-  private static joiValidation(requestSegment: unknown, schemaSegment: JoiSchemaSegment, res: Response): boolean {
-    const { error } = schemaSegment.validate(requestSegment);
+  private static zodValidation(requestSegment: unknown, schemaSegment: SchemaSegment, res: Response): boolean {
+    const result = schemaSegment.safeParse(requestSegment);
 
-    if (error) {
-      HttpResolver.serviceUnavailable('Joi', `${SERVICE_ERRORS.JOI_VALIDATION}${error}`, res);
+    if (!result.success) {
+      HttpResolver.serviceUnavailable('Zod', `${SERVICE_ERRORS.VALIDATION_ERROR}${result.error}`, res);
       return false;
     }
 

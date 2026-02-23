@@ -1,8 +1,8 @@
-import Joi from "joi";
+import { z } from 'zod';
 
 
 export const getListByIdSchema = {
-  params: Joi.object().keys({
-    id: Joi.number().integer().required()
+  params: z.object({
+    id: z.coerce.number().int()
   })
 };

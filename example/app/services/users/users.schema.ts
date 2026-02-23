@@ -1,35 +1,37 @@
-import Joi from 'joi';
+import { z } from 'zod';
 import { passwordSchema } from '../password.schema.js';
 
-export const getByIdSchema = {
-  params: Joi.object().keys({
-    id: Joi.number().integer().required()
-  })
-};
+const getByIdBodySchema = z.object({
+  id: z.coerce.number().int()
+});
 
-export const updateInformationsSchema = {
-  body: Joi.object().keys({
-    id: Joi.number().integer().required(),
-    firstname: Joi.string().required().max(50),
-    lastname: Joi.string().required().max(50),
-    email: Joi.string().email().required().max(100)
-  })
-};
+const updateInformationsBodySchema = z.object({
+  id: z.number().int(),
+  firstname: z.string().max(50),
+  lastname: z.string().max(50),
+  email: z.string().email().max(100)
+});
 
-export const updatePasswordSchema = {
-  body: Joi.object().keys({
-    id: Joi.number().integer().required(),
-    password: passwordSchema,
-    oldPassword: passwordSchema
-  })
-};
+const updatePasswordBodySchema = z.object({
+  id: z.number().int(),
+  password: passwordSchema,
+  oldPassword: passwordSchema
+});
 
-export const addSchema = {
-  body: Joi.object().keys({
-    firstname: Joi.string().required().max(50),
-    lastname: Joi.string().required().max(50),
-    email: Joi.string().email().required().max(100),
-    password: passwordSchema,
-    roles: Joi.string().required()
-  })
-};
+const addBodySchema = z.object({
+  firstname: z.string().max(50),
+  lastname: z.string().max(50),
+  email: z.string().email().max(100),
+  password: passwordSchema,
+  roles: z.string()
+});
+
+export const getByIdSchema = { params: getByIdBodySchema };
+export const updateInformationsSchema = { body: updateInformationsBodySchema };
+export const updatePasswordSchema = { body: updatePasswordBodySchema };
+export const addSchema = { body: addBodySchema };
+
+export type GetByIdParams = z.infer<typeof getByIdBodySchema>;
+export type UpdateInformationsBody = z.infer<typeof updateInformationsBodySchema>;
+export type UpdatePasswordBody = z.infer<typeof updatePasswordBodySchema>;
+export type AddUserBody = z.infer<typeof addBodySchema>;

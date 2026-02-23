@@ -8,6 +8,7 @@ import {
   updateInformationsSchema,
   updatePasswordSchema
 } from './users.schema.js';
+import type { AddUserBody, UpdateInformationsBody, UpdatePasswordBody } from './users.schema.js';
 import { RouteConfig } from 'pixelrest/types';
 import { HTTP_METHODS } from 'pixelrest/httpMethods';
 import HttpResolver from 'pixelrest/httpResolver';
@@ -101,7 +102,7 @@ export default class UsersService extends Service {
 
   async add(req: Request, res: Response): Promise<void> {
     try {
-      const body = req.body as { firstname: string; lastname: string; email: string; password: string; roles: string };
+      const body = req.body as AddUserBody;
       const userSend = {
         firstname: body.firstname,
         lastname: body.lastname,
@@ -120,7 +121,7 @@ export default class UsersService extends Service {
 
   async updateInformations(req: Request, res: Response): Promise<void> {
     try {
-      const body = req.body as { id: number; firstname: string; lastname: string; email: string };
+      const body = req.body as UpdateInformationsBody;
       const user = {
         id: body.id,
         firstname: body.firstname,
@@ -138,7 +139,7 @@ export default class UsersService extends Service {
 
   async updatePassword(req: Request, res: Response): Promise<void> {
     try {
-      const body = req.body as { id: number; password: string; oldPassword: string };
+      const body = req.body as UpdatePasswordBody;
       const sendUser = {
         id: body.id,
         password: body.oldPassword,

@@ -42,7 +42,7 @@ export default abstract class Service {
       (req, res, next) => Middleware.parseMulterBody(req, res, next)
     ];
     const commonMiddlewares: RequestHandler[] = [
-      (req, res, next) => Middleware.joi(req, res, next, routeConfig.schema),
+      (req, res, next) => Middleware.validate(req, res, next, routeConfig.schema),
       (req, res, next) => this.authorizationMiddleware(req, res, next, routeConfig.roles),
       (req, res) => this.serviceMethodExecution(req, res, routeConfig.execute)
     ];

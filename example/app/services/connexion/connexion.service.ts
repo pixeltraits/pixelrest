@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { JWT } from '../../config/secret.js';
 import { ROLES } from '../../config/roles.js';
 import { connexionSchema } from './connexion.schema.js';
+import type { ConnexionBody } from './connexion.schema.js';
 import UsersRepository from '../../repositories/users.repository.js';
 import { RouteConfig } from 'pixelrest/types';
 import { HTTP_METHODS } from 'pixelrest/httpMethods';
@@ -34,7 +35,7 @@ export default class ConnexionService extends Service {
   }
 
   async connexion(req: Request, res: Response): Promise<void> {
-    const body = req.body as { email: string; password: string };
+    const body = req.body as ConnexionBody;
 
     try {
       const user = await (this.repositories.users as UsersRepository).getByMailWithPassword(body.email);

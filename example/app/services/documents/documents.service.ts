@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 
 import Document from '../../utils/Document.js';
 import { addSchema } from './documents.schema.js';
+import type { AddDocumentBody } from './documents.schema.js';
 import type DocumentsRepository from '../../repositories/documents.repository.js';
 import { RouteConfig } from 'pixelrest/types';
 import { serverConfig } from '../../config/serverConfig.js';
@@ -44,7 +45,7 @@ export default class DocumentsService extends Service {
 
   async add(req: Request, res: Response): Promise<void> {
     try {
-      const body = req.body as { name: string; description: string };
+      const body = req.body as AddDocumentBody;
       const file = req.file as Express.Multer.File;
 
       const documentInformations = {
