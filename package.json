@@ -1,6 +1,6 @@
 {
   "name": "pixelrest",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "type": "module",
   "description": "API REST node.js",
   "private": false,
