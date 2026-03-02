@@ -57,7 +57,7 @@ export default class App {
 
     repositoryKeys.forEach(repositoryKey => {
       this.repositories[repositoryKey] = new REPOSITORIES[repositoryKey](
-        dbConnection as unknown as Parameters<typeof REPOSITORIES[typeof repositoryKey]>[0],
+        dbConnection as never,
         this.parser
       );
     });

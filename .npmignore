@@ -7,9 +7,6 @@ src/
 # Docs
 docs/
 
-# Example app
-example/
-
 # MCP server
 mcp/
 
@@ -24,7 +21,6 @@ CONTRIBUTING.md
 logs
 *.log
 temp
-documents
 
 # Runtime data
 *.pid
@@ -40,7 +36,8 @@ node_modules/
 
 # Env
 .env
-.env.*
+.env.local
+.env.*.local
 
 # Misc
 *.tgz

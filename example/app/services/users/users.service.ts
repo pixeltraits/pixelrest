@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import 'pixelrest/express';
+import type UsersRepository from '../../repositories/users/users.repository.js';
 
 import { ROLES } from '../../config/roles.js';
 import {
@@ -16,7 +17,7 @@ import Service from 'pixelrest/service';
 import Password from 'pixelrest/password';
 
 
-export default class UsersService extends Service {
+export default class UsersService extends Service<{ users: UsersRepository }> {
 
   routesConfig: RouteConfig[] = [
     {
@@ -93,7 +94,7 @@ export default class UsersService extends Service {
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
-      const user = await this.repositories.users.getById(req.params.id);
+      const user = await this.repositories.users.getById(String(req.params.id));
       res.send(user);
     } catch (error) {
       HttpResolver.handle(error as { type: string; message: string }, `UsersService#getById`, res);

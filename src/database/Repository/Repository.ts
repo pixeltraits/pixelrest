@@ -10,22 +10,22 @@ export default abstract class Repository {
     this.parser = parser;
   }
 
-  async any(sqlRequest: string, sqlParameters: Record<string, unknown>): Promise<unknown> {
-    const sqlParsed = this.parser.parse(sqlRequest, sqlParameters);
+  async any(sqlRequest: string, sqlParameters?: object): Promise<unknown> {
+    const sqlParsed = this.parser.parse(sqlRequest, (sqlParameters ?? {}) as Record<string, unknown>);
     const [rows] = await this.db.execute(sqlParsed.sqlRequest, sqlParsed.sqlParameters) as [unknown[], unknown[]];
 
     return rows;
   }
 
-  async one(sqlRequest: string, sqlParameters: Record<string, unknown>): Promise<unknown> {
-    const sqlParsed = this.parser.parse(sqlRequest, sqlParameters);
+  async one(sqlRequest: string, sqlParameters?: object): Promise<unknown> {
+    const sqlParsed = this.parser.parse(sqlRequest, (sqlParameters ?? {}) as Record<string, unknown>);
     const [rows] = await this.db.execute(sqlParsed.sqlRequest, sqlParsed.sqlParameters) as [unknown[], unknown[]];
 
     return rows[0];
   }
 
-  async insertAndGetLastInsertId(sqlRequest: string, sqlParameters: Record<string, unknown>): Promise<number | null> {
-    const sqlParsed = this.parser.parse(sqlRequest, sqlParameters);
+  async insertAndGetLastInsertId(sqlRequest: string, sqlParameters?: object): Promise<number | null> {
+    const sqlParsed = this.parser.parse(sqlRequest, (sqlParameters ?? {}) as Record<string, unknown>);
     const result = await this.db.execute(sqlParsed.sqlRequest, sqlParsed.sqlParameters);
 
     // MySQL: result[0].insertId

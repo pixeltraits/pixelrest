@@ -3,8 +3,8 @@ import Repository from 'pixelrest/repository';
 import BddParser from 'pixelrest/bddParser';
 import { DbConnection } from 'pixelrest/dbConnection';
 import Logger from 'pixelrest/logger';
-import { isPostgres } from '../config/dbConfig.js';
-import { ROLES } from '../config/roles.js';
+import { isPostgres } from '../../config/dbConfig.js';
+import { ROLES } from '../../config/roles.js';
 
 export default class UsersRepository extends Repository {
 

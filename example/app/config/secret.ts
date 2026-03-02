@@ -15,6 +15,6 @@ export const PG_CREDENTIALS = {
 };
 
 export const JWT = {
-  SECRET: process.env.JWT_SECRET,
+  SECRET: process.env.JWT_SECRET!,
   EXPIRES_IN: Number(process.env.JWT_EXPIRES_IN)
 };

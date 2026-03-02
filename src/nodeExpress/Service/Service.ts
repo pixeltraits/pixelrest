@@ -9,11 +9,11 @@ import type { RouteConfig, RateLimitConfig } from './service.config.js';
 import { SERVICE_ERRORS } from '../service-errors.config.js';
 import { ENV_ERRORS } from '../Server/server-errors.config.js';
 
-export default abstract class Service {
+export default abstract class Service<R extends Record<string, object> = Record<string, object>> {
   protected router: Router = express.Router();
   protected abstract routesConfig: RouteConfig[];
   protected tokenSecret: string;
-  protected repositories: Record<string, unknown> = {};
+  protected repositories: R = {} as R;
 
   protected constructor(tokenSecret: string) {
     if (!tokenSecret) {
@@ -29,7 +29,7 @@ export default abstract class Service {
   }
 
   setRepositories(repositories: Record<string, unknown>): void {
-    this.repositories = repositories;
+    this.repositories = repositories as unknown as R;
   }
 
   getRouter(): Router {

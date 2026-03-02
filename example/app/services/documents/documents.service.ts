@@ -4,7 +4,7 @@ import type { Request, Response } from 'express';
 import Document from '../../utils/Document.js';
 import { addSchema } from './documents.schema.js';
 import type { AddDocumentBody } from './documents.schema.js';
-import type DocumentsRepository from '../../repositories/documents.repository.js';
+import type DocumentsRepository from '../../repositories/documents/documents.repository.js';
 import { RouteConfig } from 'pixelrest/types';
 import { serverConfig } from '../../config/serverConfig.js';
 import { ROLES } from '../../config/roles.js';
@@ -13,7 +13,7 @@ import Service from 'pixelrest/service';
 import HttpResolver from 'pixelrest/httpResolver';
 
 
-export default class DocumentsService extends Service {
+export default class DocumentsService extends Service<{ documents: DocumentsRepository }> {
   protected routesConfig: RouteConfig[] = [
     {
       route: '/documents',
@@ -40,7 +40,7 @@ export default class DocumentsService extends Service {
   }
 
   private get documentsRepo(): DocumentsRepository {
-    return this.repositories.documents as DocumentsRepository;
+    return this.repositories.documents;
   }
 
   async add(req: Request, res: Response): Promise<void> {

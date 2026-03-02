@@ -1,5 +1,5 @@
-import UsersRepository from '../repositories/users.repository.js';
-import DocumentsRepository from '../repositories/documents.repository.js';
+import UsersRepository from '../repositories/users/users.repository.js';
+import DocumentsRepository from '../repositories/documents/documents.repository.js';
 import { DB_TYPE } from '../config/dbConfig.js';
 import { DbConnection } from 'pixelrest/dbConnection';
 import BddParser from 'pixelrest/bddParser';

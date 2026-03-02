@@ -29,5 +29,26 @@ import { execSync } from 'child_process';
   };
   await fs.writeFile(path.join(destDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2) + '\n');
 
-  execSync('npm install --save pixelrest zod express swagger-ui-express mysql2 && npm install --save-dev @types/swagger-ui-express tsx typescript', { stdio: 'inherit' });
+  // Merge scripts into the existing package.json
+  const pkgPath = path.join(destDir, 'package.json');
+  let pkg = {};
+  try {
+    pkg = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
+  } catch {
+    // No package.json yet — will be created by npm install
+  }
+  pkg.scripts = {
+    ...(pkg.scripts ?? {}),
+    start: 'tsx watch main.ts',
+    test: 'vitest run',
+    'test:watch': 'vitest',
+    'prepare-file': 'tsx app/scripts/prepareDatabase.ts'
+  };
+  await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+
+  execSync(
+    'npm install --save pixelrest zod express swagger-ui-express morgan multer mysql2 && ' +
+    'npm install --save-dev @types/swagger-ui-express @types/morgan @types/express @types/multer tsx typescript vitest',
+    { stdio: 'inherit' }
+  );
 })();

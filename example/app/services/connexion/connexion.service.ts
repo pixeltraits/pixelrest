@@ -3,7 +3,7 @@ import { JWT } from '../../config/secret.js';
 import { ROLES } from '../../config/roles.js';
 import { connexionSchema } from './connexion.schema.js';
 import type { ConnexionBody } from './connexion.schema.js';
-import UsersRepository from '../../repositories/users.repository.js';
+import UsersRepository from '../../repositories/users/users.repository.js';
 import { RouteConfig } from 'pixelrest/types';
 import { HTTP_METHODS } from 'pixelrest/httpMethods';
 import Service from 'pixelrest/service';
@@ -12,7 +12,7 @@ import HttpResolver from 'pixelrest/httpResolver';
 import Auth from 'pixelrest/auth';
 
 
-export default class ConnexionService extends Service {
+export default class ConnexionService extends Service<{ users: UsersRepository }> {
 
   protected routesConfig: RouteConfig[] = [
     {
@@ -38,7 +38,7 @@ export default class ConnexionService extends Service {
     const body = req.body as ConnexionBody;
 
     try {
-      const user = await (this.repositories.users as UsersRepository).getByMailWithPassword(body.email);
+      const user = await this.repositories.users.getByMailWithPassword(body.email);
 
       if (!await Password.validate(body.password, user.password)) {
         HttpResolver.unauthorized(

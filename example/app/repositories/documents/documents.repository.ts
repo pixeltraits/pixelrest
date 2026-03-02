@@ -3,7 +3,7 @@ import Repository from 'pixelrest/repository';
 import { DbConnection } from 'pixelrest/dbConnection';
 import BddParser from 'pixelrest/bddParser';
 import Logger from 'pixelrest/logger';
-import { isPostgres } from '../config/dbConfig.js';
+import { isPostgres } from '../../config/dbConfig.js';
 
 export default class DocumentsRepository extends Repository {
 

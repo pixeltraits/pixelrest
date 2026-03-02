@@ -20,10 +20,11 @@ export default class Logger {
     await Logger.addLogToFile(error, logFilePath);
   }
 
-  static async handleSQLError(error: string, logFilePath: URL = DEFAULT_LOG_CONFIG.LOG_FILE): Promise<void> {
+  static async handleSQLError(error: unknown, logFilePath: URL = DEFAULT_LOG_CONFIG.LOG_FILE): Promise<void> {
+    const message = error instanceof Error ? error.message : String(error);
     logLevel.enableAll();
-    logLevel.debug(error);
-    await Logger.addLogToFile(error, logFilePath);
+    logLevel.debug(message);
+    await Logger.addLogToFile(message, logFilePath);
   }
 
   static async addLogToFile(newLogs: string, logFilePath: URL = DEFAULT_LOG_CONFIG.LOG_FILE): Promise<void> {
