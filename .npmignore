@@ -1,0 +1,49 @@
+# Claude
+.claude/
+
+# Source (only dist is needed)
+src/
+
+# Docs
+docs/
+
+# Example app
+example/
+
+# MCP server
+mcp/
+
+# Config files
+eslint.config.js
+tsconfig.json
+tsconfig.spec.json
+vitest.config.js
+CONTRIBUTING.md
+
+# Logs & temp
+logs
+*.log
+temp
+documents
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage
+.nyc_output
+
+# Dependencies
+node_modules/
+
+# Env
+.env
+.env.*
+
+# Misc
+*.tgz
+.eslintcache
+.node_repl_history
+.idea

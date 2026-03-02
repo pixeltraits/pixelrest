@@ -1,6 +1,6 @@
 {
   "name": "pixelrest",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "description": "API REST node.js",
   "private": false,
@@ -129,7 +129,7 @@
     },
     "./express": {
       "types": "./dist/nodeExpress/express.d.ts",
-      "default": "./src/nodeExpress/express.js"
+      "default": "./dist/nodeExpress/express.js"
     }
   },
   "repository": {
