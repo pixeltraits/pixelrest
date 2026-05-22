@@ -1,5 +1,5 @@
 {
-  "name": "pixelrest",
+  "name": "@codelyr/pixelrest",
   "version": "2.0.8",
   "type": "module",
   "description": "API REST node.js",
@@ -29,13 +29,13 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
-    "zod": "^3.24.2",
     "jose": "^6.1.3",
     "loglevel": "^1.9.1",
     "multer": "^2.0.2",
     "mysql2": "^3.9.1",
     "pg-promise": "^12.6.1",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -134,14 +134,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pixeltraits/pixelrest.git"
+    "url": "git+https://github.com/codelyr/pixelrest.git"
   },
   "author": "pixeltraits",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pixeltraits/pixelrest/issues"
+    "url": "https://github.com/codelyr/pixelrest/issues"
   },
-  "homepage": "https://github.com/pixeltraits/pixelrest#readme",
+  "homepage": "https://github.com/codelyr/pixelrest#readme",
   "keywords": [
     "pixelrest",
     "node-rest",
